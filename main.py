@@ -6,7 +6,9 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
+from matplotlib.backends.backend_wxagg import (
+    NavigationToolbar2WxAgg as NavigationToolbar,
+)
 from wx import (
     App,
     BoxSizer,
@@ -39,34 +41,49 @@ from wx import (
 from wx.lib.agw.floatspin import FloatSpin
 
 
-np.seterr(invalid='ignore', divide='ignore')
+np.seterr(invalid="ignore", divide="ignore")
 
 
 class VHMEnvelope(Frame):
-
     def __init__(self, parent):
-        super().__init__(parent, -1, 'ISO V-H-M Envelope ', style=DEFAULT_FRAME_STYLE ^ RESIZE_BORDER)
+        super().__init__(
+            parent, -1, "ISO V-H-M Envelope ", style=DEFAULT_FRAME_STYLE ^ RESIZE_BORDER
+        )
 
         # Frame items
 
         panel = Panel(self)
-        panel.SetBackgroundColour('white')
+        panel.SetBackgroundColour("white")
 
         # Panel items
 
-        self.qv_text = StaticText(panel, -1, 'Qv:')
-        self.qv_value = SpinCtrl(panel, -1, min=0, max=100000, initial=10000, size=(75, -1))
-        self.qh_text = StaticText(panel, -1, 'Qh:')
-        self.qh_value = SpinCtrl(panel, -1, min=0, max=100000, initial=1000, size=(75, -1))
-        self.qm_text = StaticText(panel, -1, 'Qm:')
-        self.qm_value = SpinCtrl(panel, -1, min=0, max=100000, initial=20000, size=(75, -1))
+        self.qv_text = StaticText(panel, -1, "Qv:")
+        self.qv_value = SpinCtrl(
+            panel, -1, min=0, max=100000, initial=10000, size=(75, -1)
+        )
+        self.qh_text = StaticText(panel, -1, "Qh:")
+        self.qh_value = SpinCtrl(
+            panel, -1, min=0, max=100000, initial=1000, size=(75, -1)
+        )
+        self.qm_text = StaticText(panel, -1, "Qm:")
+        self.qm_value = SpinCtrl(
+            panel, -1, min=0, max=100000, initial=20000, size=(75, -1)
+        )
 
-        self.foundation = RadioBox(panel, -1, label='Foundation', choices=['Sand', 'Clay'])
-        self.unit = RadioBox(panel, -1, label='Unit', choices=['Dimensioned', 'Dimensionless'])
-        self.suction_box = RadioBox(panel, -1, label='Suction', choices=['Available', 'Unavailable'])
-        self.alpha_box = RadioBox(panel, -1, label='Adhesion', choices=[u'\u0251>=0.5', u'\u0251<0.5'])
+        self.foundation = RadioBox(
+            panel, -1, label="Foundation", choices=["Sand", "Clay"]
+        )
+        self.unit = RadioBox(
+            panel, -1, label="Unit", choices=["Dimensioned", "Dimensionless"]
+        )
+        self.suction_box = RadioBox(
+            panel, -1, label="Suction", choices=["Available", "Unavailable"]
+        )
+        self.alpha_box = RadioBox(
+            panel, -1, label="Adhesion", choices=[u"\u0251>=0.5", u"\u0251<0.5"]
+        )
 
-        self.diameter_text = StaticText(panel, -1, ' Bmax/B: ')
+        self.diameter_text = StaticText(panel, -1, " Bmax/B: ")
         self.diameter_value = FloatSpin(
             panel,
             -1,
@@ -78,7 +95,7 @@ class VHMEnvelope(Frame):
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
-        self.a_text = StaticText(panel, -1, ' a ')
+        self.a_text = StaticText(panel, -1, " a ")
         self.a_value = FloatSpin(
             panel,
             -1,
@@ -90,7 +107,7 @@ class VHMEnvelope(Frame):
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
-        self.alpha_text = StaticText(panel, -1, u' \u0251 ')
+        self.alpha_text = StaticText(panel, -1, u" \u0251 ")
         self.alpha_value = FloatSpin(
             panel,
             -1,
@@ -106,7 +123,7 @@ class VHMEnvelope(Frame):
         self.Fv_value_default = self.qv_value.GetValue() // 2
         self.Fh_value_default = 0
         self.Fm_value_default = 0
-        self.Fv_position_text = StaticText(panel, -1, 'Fv:')
+        self.Fv_position_text = StaticText(panel, -1, "Fv:")
         self.Fv_position_value = Slider(
             panel,
             -1,
@@ -116,7 +133,7 @@ class VHMEnvelope(Frame):
             size=(150, -1),
             style=SL_LABELS,
         )
-        self.Fh_position_text = StaticText(panel, -1, 'Fh:')
+        self.Fh_position_text = StaticText(panel, -1, "Fh:")
         self.Fh_position_value = Slider(
             panel,
             -1,
@@ -126,7 +143,7 @@ class VHMEnvelope(Frame):
             size=(150, -1),
             style=SL_LABELS,
         )
-        self.Fm_position_text = StaticText(panel, -1, 'Fm:')
+        self.Fm_position_text = StaticText(panel, -1, "Fm:")
         self.Fm_position_value = Slider(
             panel,
             -1,
@@ -137,23 +154,27 @@ class VHMEnvelope(Frame):
             style=SL_LABELS,
         )
 
-        self.draw_button = Button(panel, -1, 'Draw Plots')
-        self.clear_button = Button(panel, -1, 'Clear Plots and Reacts')
-        self.import_button = Button(panel, -1, 'Import ISO Reactions')
-        self.clear_react_button = Button(panel, -1, 'Clear Reactions')
-        self.save_button = Button(panel, -1, 'Save Selection')
-        self.clear_save_button = Button(panel, -1, 'Clear Selection')
-        self.plot_selection_button = Button(panel, -1, 'Plot Selection')
+        self.draw_button = Button(panel, -1, "Draw Plots")
+        self.clear_button = Button(panel, -1, "Clear Plots and Reacts")
+        self.import_button = Button(panel, -1, "Import ISO Reactions")
+        self.clear_react_button = Button(panel, -1, "Clear Reactions")
+        self.save_button = Button(panel, -1, "Save Selection")
+        self.clear_save_button = Button(panel, -1, "Clear Selection")
+        self.plot_selection_button = Button(panel, -1, "Plot Selection")
 
-        self.wbfo_value = SpinCtrl(panel, -1, min=0, max=10000, initial=200, size=(150, -1))
-        self.wbfo_text = StaticText(panel, -1, 'Wbfo:')
+        self.wbfo_value = SpinCtrl(
+            panel, -1, min=0, max=10000, initial=200, size=(150, -1)
+        )
+        self.wbfo_text = StaticText(panel, -1, "Wbfo:")
         self.bs_value = SpinCtrl(panel, -1, min=0, max=1000, initial=20, size=(150, -1))
-        self.bs_text = StaticText(panel, -1, 'Bs:')
-        self.factored_vh = RadioBox(panel, -1, label='Factored V-H', choices=['Off', 'On'])
+        self.bs_text = StaticText(panel, -1, "Bs:")
+        self.factored_vh = RadioBox(
+            panel, -1, label="Factored V-H", choices=["Off", "On"]
+        )
 
         # Selection attributes
 
-        self.colours = ['b', 'g', 'r']
+        self.colours = ["b", "g", "r"]
         self.moments = []
         self.horizontals = []
         self.verticals = []
@@ -184,7 +205,7 @@ class VHMEnvelope(Frame):
         self.fontSize = 8
 
         self.gs = gridspec.GridSpec(3, 2)
-        self.fig = plt.figure(facecolor='white', dpi=self.dpi)
+        self.fig = plt.figure(facecolor="white", dpi=self.dpi)
         self.canvas = FigCanvas(panel, -1, self.fig)
         self.toolbar = NavigationToolbar(self.canvas)
         self.handles = None
@@ -193,7 +214,7 @@ class VHMEnvelope(Frame):
         self.ax1 = self.fig.add_subplot(self.gs[0, 0])
         self.ax2 = self.fig.add_subplot(self.gs[1, 0])
         self.ax3 = self.fig.add_subplot(self.gs[2, 0])
-        self.ax4 = self.fig.add_subplot(self.gs[0:2, 1], projection='3d')
+        self.ax4 = self.fig.add_subplot(self.gs[0:2, 1], projection="3d")
 
         # Sizers
 
@@ -242,15 +263,21 @@ class VHMEnvelope(Frame):
         parameters.Add(ratios, flag=ALIGN_CENTRE_VERTICAL)
 
         sizer_two_sub1 = BoxSizer(HORIZONTAL)
-        sizer_two_sub1.Add(self.Fv_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
+        sizer_two_sub1.Add(
+            self.Fv_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT
+        )
         sizer_two_sub1.Add(self.Fv_position_value, flag=ALIGN_CENTRE_VERTICAL)
 
         sizer_two_sub2 = BoxSizer(HORIZONTAL)
-        sizer_two_sub2.Add(self.Fh_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
+        sizer_two_sub2.Add(
+            self.Fh_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT
+        )
         sizer_two_sub2.Add(self.Fh_position_value, flag=ALIGN_CENTRE_VERTICAL)
 
         sizer_two_sub3 = BoxSizer(HORIZONTAL)
-        sizer_two_sub3.Add(self.Fm_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
+        sizer_two_sub3.Add(
+            self.Fm_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT
+        )
         sizer_two_sub3.Add(self.Fm_position_value, flag=ALIGN_CENTRE_VERTICAL)
 
         sizer_two_sub4 = BoxSizer(HORIZONTAL)
@@ -337,22 +364,22 @@ class VHMEnvelope(Frame):
         i = bisect.bisect_left(list_data, x, lo=0, hi=len(list_data))
         if x == list_data[i]:
             return i
-        elif x != list_data[i] and flag == 'left':
+        elif x != list_data[i] and flag == "left":
             return i - 1
-        elif x != list_data[i] and flag == 'right':
+        elif x != list_data[i] and flag == "right":
             return i
 
     def lookup_table(self, table, value_a, value_alpha):
         a_values = [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]
         alpha_values = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-        i = self.get_index(a_values, value_a, 'left')
+        i = self.get_index(a_values, value_a, "left")
         as_lower = table[:, i]
-        j = self.get_index(a_values, value_a, 'right')
+        j = self.get_index(a_values, value_a, "right")
         as_upper = table[:, j]
 
-        ii = self.get_index(alpha_values, value_alpha, 'left')
-        jj = self.get_index(alpha_values, value_alpha, 'right')
+        ii = self.get_index(alpha_values, value_alpha, "left")
+        jj = self.get_index(alpha_values, value_alpha, "right")
 
         if i == j and ii == jj:
             value = as_lower[ii]
@@ -361,13 +388,17 @@ class VHMEnvelope(Frame):
         if i == j and ii != jj:
             lower = as_lower[ii]
             upper = as_lower[jj]
-            value = (value_alpha - alpha_values[ii]) * (upper - lower) / (alpha_values[jj] - alpha_values[ii]) + lower
+            value = (value_alpha - alpha_values[ii]) * (upper - lower) / (
+                alpha_values[jj] - alpha_values[ii]
+            ) + lower
             return value
 
         if i != j and ii == jj:
             lower = as_lower[ii]
             upper = as_upper[ii]
-            value = (value_a - a_values[i]) / (a_values[j] - a_values[i]) * (upper - lower) + lower
+            value = (value_a - a_values[i]) / (a_values[j] - a_values[i]) * (
+                upper - lower
+            ) + lower
             return value
 
         if i != j and ii != jj:
@@ -376,12 +407,15 @@ class VHMEnvelope(Frame):
             upper_lower = as_upper[ii]
             upper_upper = as_upper[jj]
 
-            alphas_lower = (value_a - a_values[i]) * (as_upper[ii] - as_lower[ii]) / (a_values[j] - a_values[i]) + \
-                           as_lower[ii]
-            alphas_upper = (value_a - a_values[i]) * (as_upper[jj] - as_lower[jj]) / (a_values[j] - a_values[i]) + \
-                           as_lower[jj]
+            alphas_lower = (value_a - a_values[i]) * (as_upper[ii] - as_lower[ii]) / (
+                a_values[j] - a_values[i]
+            ) + as_lower[ii]
+            alphas_upper = (value_a - a_values[i]) * (as_upper[jj] - as_lower[jj]) / (
+                a_values[j] - a_values[i]
+            ) + as_lower[jj]
             value = (value_alpha - alpha_values[ii]) * (alphas_upper - alphas_lower) / (
-                        alpha_values[jj] - alpha_values[ii]) + alphas_lower
+                alpha_values[jj] - alpha_values[ii]
+            ) + alphas_lower
             return value
 
     def makeFactorisation(self, verticalValues, horizontalValues, wbfo, bs):
@@ -433,29 +467,77 @@ class VHMEnvelope(Frame):
                 self.ax2.plot(Fh_ax2, Fm_ax2, color=self.colours[i])
                 self.ax3.plot(Fv_ax3, Fm_ax3, color=self.colours[i])
                 xs, ys = np.meshgrid(Fv_ax4, Fh_ax4)
-                self.ax4.plot_surface(xs, ys, Fm_ax4, linewidth=0.1, alpha=0.3, color=self.colours[i])
+                self.ax4.plot_surface(
+                    xs, ys, Fm_ax4, linewidth=0.1, alpha=0.3, color=self.colours[i]
+                )
 
-                self.ax1.scatter(horizontals, verticals, color=self.colours[i], s=5, edgecolor='none')
-                self.ax2.scatter(horizontals, moments, color=self.colours[i], s=5, edgecolor='none')
-                self.ax3.scatter(verticals, moments, color=self.colours[i], s=5, edgecolor='none')
-                self.ax4.scatter(verticals, horizontals, moments, color=self.colours[i], s=3, linewidth='0')
+                self.ax1.scatter(
+                    horizontals, verticals, color=self.colours[i], s=5, edgecolor="none"
+                )
+                self.ax2.scatter(
+                    horizontals, moments, color=self.colours[i], s=5, edgecolor="none"
+                )
+                self.ax3.scatter(
+                    verticals, moments, color=self.colours[i], s=5, edgecolor="none"
+                )
+                self.ax4.scatter(
+                    verticals,
+                    horizontals,
+                    moments,
+                    color=self.colours[i],
+                    s=3,
+                    linewidth="0",
+                )
 
             if self.unit.GetSelection() == 1:
-                self.ax1.plot(Fh_ax1 / Qh, Fv_ax1 / Qv, color=self.colours[i], label=labels)
+                self.ax1.plot(
+                    Fh_ax1 / Qh, Fv_ax1 / Qv, color=self.colours[i], label=labels
+                )
                 self.ax2.plot(Fh_ax2 / Qh, Fm_ax2 / Qm, color=self.colours[i])
                 self.ax3.plot(Fv_ax3 / Qv, Fm_ax3 / Qm, color=self.colours[i])
                 xs, ys = np.meshgrid(Fv_ax4 / Qv, Fh_ax4 / Qh)
-                self.ax4.plot_surface(xs, ys, Fm_ax4 / Qm, linewidth=0.1, alpha=0.3, color=self.colours[i])
+                self.ax4.plot_surface(
+                    xs, ys, Fm_ax4 / Qm, linewidth=0.1, alpha=0.3, color=self.colours[i]
+                )
 
-                self.ax1.scatter(horizontals / Qh, verticals / Qv, color=self.colours[i], s=5, edgecolor='none')
-                self.ax2.scatter(horizontals / Qh, moments / Qm, color=self.colours[i], s=5, edgecolor='none')
-                self.ax3.scatter(verticals / Qv, moments / Qm, color=self.colours[i], s=5, edgecolor='none')
-                self.ax4.scatter(verticals / Qv, horizontals / Qh, moments / Qm, color=self.colours[i], s=3,
-                                 linewidth='0')
+                self.ax1.scatter(
+                    horizontals / Qh,
+                    verticals / Qv,
+                    color=self.colours[i],
+                    s=5,
+                    edgecolor="none",
+                )
+                self.ax2.scatter(
+                    horizontals / Qh,
+                    moments / Qm,
+                    color=self.colours[i],
+                    s=5,
+                    edgecolor="none",
+                )
+                self.ax3.scatter(
+                    verticals / Qv,
+                    moments / Qm,
+                    color=self.colours[i],
+                    s=5,
+                    edgecolor="none",
+                )
+                self.ax4.scatter(
+                    verticals / Qv,
+                    horizontals / Qh,
+                    moments / Qm,
+                    color=self.colours[i],
+                    s=3,
+                    linewidth="0",
+                )
 
         self.handles, self.labels = self.ax1.get_legend_handles_labels()
-        self.ax4.legend(self.handles, self.labels, bbox_to_anchor=(0, -0.1), loc='upper left',
-                        prop={'size': self.fontSize})
+        self.ax4.legend(
+            self.handles,
+            self.labels,
+            bbox_to_anchor=(0, -0.1),
+            loc="upper left",
+            prop={"size": self.fontSize},
+        )
         self.AddGraphLabels()
         self.canvas.draw()
 
@@ -557,24 +639,35 @@ class VHMEnvelope(Frame):
 
     def ImportReacts(self, event):
 
-        dialog = FileDialog(None, 'Choose a .JAR file', defaultDir=os.getcwd(), style=FD_OPEN)
+        dialog = FileDialog(
+            None, "Choose a .JAR file", defaultDir=os.getcwd(), style=FD_OPEN
+        )
         if dialog.ShowModal() == ID_OK:
             path = dialog.GetPath()
-            inFile = open(path, 'r')
+            inFile = open(path, "r")
             data = inFile.read()
             inFile.close()
             reactions = re.findall(
-                r'\d{1,3}\.\d\s*[a-d]\s*\d\s*[\-0]\.\d{4}E[\+\-]\d{2}\s*\-\d*\.\s*\d*\.\s*([\-0]\.\d{4}E[\+\-]\d{2})\s*\-(\d*\.)\s*(\d*\.)\s*\d*\.\s*\d\.\d{2}\s*\d\s*[\-0]\.\d{4}E[\+\-]\d{2}\s*\-\d*\.\s*\d*\.\s*([\-0]\.\d{4}E[\+\-]\d{2})\s*\-(\d*\.)\s*(\d*\.)\s*\d*\.\s*\d\.\d{2}\s*\d\s*[\-0]\.\d{4}E[\+\-]\d{2}\s*\-\d*\.\s*\d*\.\s*([\-0]\.\d{4}E[\+\-]\d{2})\s*\-(\d*\.)\s*(\d*\.)\s*\d*\.\s*\d\.\d{2}',
-                data)
+                r"\d{1,3}\.\d\s*[a-d]\s*\d\s*[\-0]\.\d{4}E[\+\-]\d{2}\s*\-\d*\.\s*\d*\.\s*([\-0]\.\d{4}E[\+\-]\d{2})\s*\-(\d*\.)\s*(\d*\.)\s*\d*\.\s*\d\.\d{2}\s*\d\s*[\-0]\.\d{4}E[\+\-]\d{2}\s*\-\d*\.\s*\d*\.\s*([\-0]\.\d{4}E[\+\-]\d{2})\s*\-(\d*\.)\s*(\d*\.)\s*\d*\.\s*\d\.\d{2}\s*\d\s*[\-0]\.\d{4}E[\+\-]\d{2}\s*\-\d*\.\s*\d*\.\s*([\-0]\.\d{4}E[\+\-]\d{2})\s*\-(\d*\.)\s*(\d*\.)\s*\d*\.\s*\d\.\d{2}",
+                data,
+            )
 
-            self.moments = np.asarray([[float(i[0]), float(i[3]), float(i[6])] for i in reactions]).flatten()
-            self.horizontals = np.asarray([[float(i[1]), float(i[4]), float(i[7])] for i in reactions]).flatten()
-            self.verticals = np.asarray([[float(i[2]), float(i[5]), float(i[8])] for i in reactions]).flatten()
+            self.moments = np.asarray(
+                [[float(i[0]), float(i[3]), float(i[6])] for i in reactions]
+            ).flatten()
+            self.horizontals = np.asarray(
+                [[float(i[1]), float(i[4]), float(i[7])] for i in reactions]
+            ).flatten()
+            self.verticals = np.asarray(
+                [[float(i[2]), float(i[5]), float(i[8])] for i in reactions]
+            ).flatten()
 
     def NormaliseReacts(self):
 
         self.norm_moments = np.array(self.moments) / float(self.qm_value.GetValue())
-        self.norm_horizontals = np.array(self.horizontals) / float(self.qh_value.GetValue())
+        self.norm_horizontals = np.array(self.horizontals) / float(
+            self.qh_value.GetValue()
+        )
         self.norm_verticals = np.array(self.verticals) / float(self.qv_value.GetValue())
 
     def DrawReacts(self):
@@ -583,17 +676,33 @@ class VHMEnvelope(Frame):
             self.NormaliseReacts()
 
             if self.unit.GetSelection() == 0:
-                self.ax1.scatter(self.horizontals, self.verticals, s=5, edgecolor='none')
-                self.ax2.scatter(self.horizontals, self.moments, s=5, edgecolor='none')
-                self.ax3.scatter(self.verticals, self.moments, s=5, edgecolor='none')
-                self.ax4.scatter(self.verticals, self.horizontals, self.moments, s=5, linewidth='0')
+                self.ax1.scatter(
+                    self.horizontals, self.verticals, s=5, edgecolor="none"
+                )
+                self.ax2.scatter(self.horizontals, self.moments, s=5, edgecolor="none")
+                self.ax3.scatter(self.verticals, self.moments, s=5, edgecolor="none")
+                self.ax4.scatter(
+                    self.verticals, self.horizontals, self.moments, s=5, linewidth="0"
+                )
                 self.canvas.draw()
 
             elif self.unit.GetSelection() == 1:
-                self.ax1.scatter(self.norm_horizontals, self.norm_verticals, s=5, edgecolor='none')
-                self.ax2.scatter(self.norm_horizontals, self.norm_moments, s=5, edgecolor='none')
-                self.ax3.scatter(self.norm_verticals, self.norm_moments, s=5, edgecolor='none')
-                self.ax4.scatter(self.norm_verticals, self.norm_horizontals, self.norm_moments, s=5, linewidth='0')
+                self.ax1.scatter(
+                    self.norm_horizontals, self.norm_verticals, s=5, edgecolor="none"
+                )
+                self.ax2.scatter(
+                    self.norm_horizontals, self.norm_moments, s=5, edgecolor="none"
+                )
+                self.ax3.scatter(
+                    self.norm_verticals, self.norm_moments, s=5, edgecolor="none"
+                )
+                self.ax4.scatter(
+                    self.norm_verticals,
+                    self.norm_horizontals,
+                    self.norm_moments,
+                    s=5,
+                    linewidth="0",
+                )
                 self.canvas.draw()
 
             self.AddGraphLabels()
@@ -605,36 +714,38 @@ class VHMEnvelope(Frame):
         self.ax3.grid(True)
         self.ax4.grid(False)
 
-        self.ax1.tick_params(axis='both', which='major', labelsize=self.fontSize)
-        self.ax2.tick_params(axis='both', which='major', labelsize=self.fontSize)
-        self.ax3.tick_params(axis='both', which='major', labelsize=self.fontSize)
-        self.ax4.tick_params(axis='both', which='major', labelsize=self.fontSize)
+        self.ax1.tick_params(axis="both", which="major", labelsize=self.fontSize)
+        self.ax2.tick_params(axis="both", which="major", labelsize=self.fontSize)
+        self.ax3.tick_params(axis="both", which="major", labelsize=self.fontSize)
+        self.ax4.tick_params(axis="both", which="major", labelsize=self.fontSize)
 
         if self.unit.GetSelection() == 0:
-            self.ax1.set_xlabel(r'$\mathregular{F_H}$ (tonnes)', fontsize=self.fontSize)
-            self.ax2.set_xlabel(r'$\mathregular{F_H}$ (tonnes)', fontsize=self.fontSize)
-            self.ax3.set_xlabel(r'$\mathregular{F_V}$ (tonnes)', fontsize=self.fontSize)
-            self.ax4.set_xlabel(r'$\mathregular{F_V}$ (tonnes)', fontsize=self.fontSize)
+            self.ax1.set_xlabel(r"$\mathregular{F_H}$ (tonnes)", fontsize=self.fontSize)
+            self.ax2.set_xlabel(r"$\mathregular{F_H}$ (tonnes)", fontsize=self.fontSize)
+            self.ax3.set_xlabel(r"$\mathregular{F_V}$ (tonnes)", fontsize=self.fontSize)
+            self.ax4.set_xlabel(r"$\mathregular{F_V}$ (tonnes)", fontsize=self.fontSize)
 
-            self.ax1.set_ylabel(r'$\mathregular{F_V}$ (tonnes)', fontsize=self.fontSize)
-            self.ax2.set_ylabel(r'$\mathregular{F_M}$ (tonnes)', fontsize=self.fontSize)
-            self.ax3.set_ylabel(r'$\mathregular{F_M}$ (tonnes)', fontsize=self.fontSize)
-            self.ax4.set_ylabel(r'$\mathregular{F_H}$ (tonnes)', fontsize=self.fontSize)
+            self.ax1.set_ylabel(r"$\mathregular{F_V}$ (tonnes)", fontsize=self.fontSize)
+            self.ax2.set_ylabel(r"$\mathregular{F_M}$ (tonnes)", fontsize=self.fontSize)
+            self.ax3.set_ylabel(r"$\mathregular{F_M}$ (tonnes)", fontsize=self.fontSize)
+            self.ax4.set_ylabel(r"$\mathregular{F_H}$ (tonnes)", fontsize=self.fontSize)
 
-            self.ax4.set_zlabel(r'Moment Reaction, $\mathregular{F_M}$ (tonnes)', fontsize=self.fontSize)
+            self.ax4.set_zlabel(
+                r"Moment Reaction, $\mathregular{F_M}$ (tonnes)", fontsize=self.fontSize
+            )
 
         elif self.unit.GetSelection() == 1:
-            self.ax1.set_xlabel(r'$\mathregular{F_H/Q_H}$', fontsize=self.fontSize)
-            self.ax2.set_xlabel(r'$\mathregular{F_H/Q_H}$', fontsize=self.fontSize)
-            self.ax3.set_xlabel(r'$\mathregular{F_V/Q_V}$', fontsize=self.fontSize)
-            self.ax4.set_xlabel(r'$\mathregular{F_V/Q_V}$', fontsize=self.fontSize)
+            self.ax1.set_xlabel(r"$\mathregular{F_H/Q_H}$", fontsize=self.fontSize)
+            self.ax2.set_xlabel(r"$\mathregular{F_H/Q_H}$", fontsize=self.fontSize)
+            self.ax3.set_xlabel(r"$\mathregular{F_V/Q_V}$", fontsize=self.fontSize)
+            self.ax4.set_xlabel(r"$\mathregular{F_V/Q_V}$", fontsize=self.fontSize)
 
-            self.ax1.set_ylabel(r'$\mathregular{F_V/Q_V}$', fontsize=self.fontSize)
-            self.ax2.set_ylabel(r'$\mathregular{F_M/Q_M}$', fontsize=self.fontSize)
-            self.ax3.set_ylabel(r'$\mathregular{F_M/Q_M}$', fontsize=self.fontSize)
-            self.ax4.set_ylabel(r'$\mathregular{F_H/Q_H}$', fontsize=self.fontSize)
+            self.ax1.set_ylabel(r"$\mathregular{F_V/Q_V}$", fontsize=self.fontSize)
+            self.ax2.set_ylabel(r"$\mathregular{F_M/Q_M}$", fontsize=self.fontSize)
+            self.ax3.set_ylabel(r"$\mathregular{F_M/Q_M}$", fontsize=self.fontSize)
+            self.ax4.set_ylabel(r"$\mathregular{F_H/Q_H}$", fontsize=self.fontSize)
 
-            self.ax4.set_zlabel(r'$\mathregular{F_M/Q_M}$', fontsize=self.fontSize)
+            self.ax4.set_zlabel(r"$\mathregular{F_M/Q_M}$", fontsize=self.fontSize)
 
         self.ax1.set_xlim(left=0)
         self.ax1.set_ylim(bottom=0)
@@ -660,19 +771,27 @@ class VHMEnvelope(Frame):
     def DrawGraphs(self, event):
         self.ClearAxes()
 
-        FvQvts = np.array([[0.354, 0.334, 0.308, 0.293, 0.276, 0.238, 0.200],
-                           [0.387, 0.373, 0.354, 0.343, 0.331, 0.300, 0.265],
-                           [0.418, 0.408, 0.396, 0.388, 0.379, 0.357, 0.329],
-                           [0.447, 0.441, 0.433, 0.428, 0.423, 0.409, 0.390],
-                           [0.474, 0.471, 0.468, 0.465, 0.463, 0.457, 0.448],
-                           [0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500]])
+        FvQvts = np.array(
+            [
+                [0.354, 0.334, 0.308, 0.293, 0.276, 0.238, 0.200],
+                [0.387, 0.373, 0.354, 0.343, 0.331, 0.300, 0.265],
+                [0.418, 0.408, 0.396, 0.388, 0.379, 0.357, 0.329],
+                [0.447, 0.441, 0.433, 0.428, 0.423, 0.409, 0.390],
+                [0.474, 0.471, 0.468, 0.465, 0.463, 0.457, 0.448],
+                [0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500],
+            ]
+        )
 
-        m_alphas = np.array([[1.172, 1.200, 1.239, 1.264, 1.295, 1.378, 1.500],
-                             [0.902, 0.917, 0.937, 0.950, 0.965, 1.006, 1.067],
-                             [0.653, 0.661, 0.670, 0.676, 0.683, 0.701, 0.729],
-                             [0.422, 0.425, 0.429, 0.431, 0.434, 0.440, 0.450],
-                             [0.205, 0.206, 0.207, 0.207, 0.208, 0.209, 0.211],
-                             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]])
+        m_alphas = np.array(
+            [
+                [1.172, 1.200, 1.239, 1.264, 1.295, 1.378, 1.500],
+                [0.902, 0.917, 0.937, 0.950, 0.965, 1.006, 1.067],
+                [0.653, 0.661, 0.670, 0.676, 0.683, 0.701, 0.729],
+                [0.422, 0.425, 0.429, 0.431, 0.434, 0.440, 0.450],
+                [0.205, 0.206, 0.207, 0.207, 0.208, 0.209, 0.211],
+                [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+            ]
+        )
 
         granularity = 300
         Qv = float(self.qv_value.GetValue())
@@ -689,58 +808,96 @@ class VHMEnvelope(Frame):
         bs = float(self.bs_value.GetValue())
 
         if self.foundation.GetSelection() == 0:
-            soil_flag = 'Sand'
+            soil_flag = "Sand"
 
         elif self.foundation.GetSelection() == 1:
-            soil_flag = 'Clay'
+            soil_flag = "Clay"
             suction_flag = self.suction_box.GetSelection()
 
         if self.unit.GetSelection() == 0:
-            graph_flag = 'Dimensioned'
+            graph_flag = "Dimensioned"
 
         elif self.unit.GetSelection() == 1:
-            graph_flag = 'Dimensionless'
+            graph_flag = "Dimensionless"
 
         startv = 0.0
         starth = 0.0
         FvQvt = self.lookup_table(FvQvts, a, alpha)
         m_alpha = self.lookup_table(m_alphas, a, alpha)
 
-        if soil_flag == 'Sand':
+        if soil_flag == "Sand":
             self.Fv_ax1 = np.linspace(startv, Qv, granularity)
             Qmps_ax1 = Qm * (Bm_B) ** 3 * np.ones(granularity)
             Qmpv_ax1 = 0.15 * ((Qm * 0.12) / (0.075 * Qh)) * self.Fv_ax1
-            Fh_ax1_orig = np.nan_to_num(Qh * np.sqrt(
-                4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv)) + 16 * (1 - a) * (self.Fv_ax1 / Qv) ** 2 * (
-                            1 - (self.Fv_ax1 / Qv)) ** 2 - (Fm_position / Qm) ** 2))
-            Fh_ax1_mod = np.nan_to_num(Qh * np.sqrt(
-                4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv)) + 16 * (1 - a) * (self.Fv_ax1 / Qv) ** 2 * (
-                            1 - (self.Fv_ax1 / Qv)) ** 2 - (Fm_position / np.minimum(Qmps_ax1, Qmpv_ax1)) ** 2))
+            Fh_ax1_orig = np.nan_to_num(
+                Qh
+                * np.sqrt(
+                    4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv))
+                    + 16
+                    * (1 - a)
+                    * (self.Fv_ax1 / Qv) ** 2
+                    * (1 - (self.Fv_ax1 / Qv)) ** 2
+                    - (Fm_position / Qm) ** 2
+                )
+            )
+            Fh_ax1_mod = np.nan_to_num(
+                Qh
+                * np.sqrt(
+                    4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv))
+                    + 16
+                    * (1 - a)
+                    * (self.Fv_ax1 / Qv) ** 2
+                    * (1 - (self.Fv_ax1 / Qv)) ** 2
+                    - (Fm_position / np.minimum(Qmps_ax1, Qmpv_ax1)) ** 2
+                )
+            )
             self.Fh_ax1 = np.maximum(Fh_ax1_orig, Fh_ax1_mod)
 
             if Fm_position == 0:
-                self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(self.Fv_ax1, self.Fh_ax1, wbfo, bs)
+                self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(
+                    self.Fv_ax1, self.Fh_ax1, wbfo, bs
+                )
 
             self.Fh_ax2 = np.linspace(starth, Qh, granularity)
             Qmps_ax2 = Qm * (Bm_B) ** 3 * np.ones(granularity)
             Qmpv_ax2 = 0.15 * ((Qm * 0.12) / (0.075 * Qh)) * Fv_position
-            Fm_ax2_orig = np.nan_to_num(Qm * np.sqrt(
-                4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv)) + 16 * (1 - a) * (Fv_position / Qv) ** 2 * (
-                            1 - (Fv_position / Qv)) ** 2 - (self.Fh_ax2 / Qh) ** 2))
-            Fm_ax2_mod = np.nan_to_num(np.minimum(Qmps_ax2, Qmpv_ax2) * np.sqrt(
-                4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv)) + 16 * (1 - a) * (Fv_position / Qv) ** 2 * (
-                            1 - (Fv_position / Qv)) ** 2 - (self.Fh_ax2 / Qh) ** 2))
+            Fm_ax2_orig = np.nan_to_num(
+                Qm
+                * np.sqrt(
+                    4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                    + 16
+                    * (1 - a)
+                    * (Fv_position / Qv) ** 2
+                    * (1 - (Fv_position / Qv)) ** 2
+                    - (self.Fh_ax2 / Qh) ** 2
+                )
+            )
+            Fm_ax2_mod = np.nan_to_num(
+                np.minimum(Qmps_ax2, Qmpv_ax2)
+                * np.sqrt(
+                    4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                    + 16
+                    * (1 - a)
+                    * (Fv_position / Qv) ** 2
+                    * (1 - (Fv_position / Qv)) ** 2
+                    - (self.Fh_ax2 / Qh) ** 2
+                )
+            )
             self.Fm_ax2 = np.maximum(Fm_ax2_orig, Fm_ax2_mod)
 
             self.Fv_ax3 = np.linspace(startv, Qv, granularity)
             Qmps_ax3 = Qm * (Bm_B) ** 3 * np.ones(granularity)
             Qmpv_ax3 = 0.15 * ((Qm * 0.12) / (0.075 * Qh)) * self.Fv_ax3
             Fm_ax3_orig = Qm * np.sqrt(
-                4 * a * (self.Fv_ax3 / Qv) * (1 - (self.Fv_ax3 / Qv)) + 16 * (1 - a) * (self.Fv_ax3 / Qv) ** 2 * (
-                            1 - (self.Fv_ax3 / Qv)) ** 2 - (Fh_position / Qh) ** 2)
+                4 * a * (self.Fv_ax3 / Qv) * (1 - (self.Fv_ax3 / Qv))
+                + 16 * (1 - a) * (self.Fv_ax3 / Qv) ** 2 * (1 - (self.Fv_ax3 / Qv)) ** 2
+                - (Fh_position / Qh) ** 2
+            )
             Fm_ax3_mod = np.minimum(Qmps_ax3, Qmpv_ax3) * np.sqrt(
-                4 * a * (self.Fv_ax3 / Qv) * (1 - (self.Fv_ax3 / Qv)) + 16 * (1 - a) * (self.Fv_ax3 / Qv) ** 2 * (
-                            1 - (self.Fv_ax3 / Qv)) ** 2 - (Fh_position / Qh) ** 2)
+                4 * a * (self.Fv_ax3 / Qv) * (1 - (self.Fv_ax3 / Qv))
+                + 16 * (1 - a) * (self.Fv_ax3 / Qv) ** 2 * (1 - (self.Fv_ax3 / Qv)) ** 2
+                - (Fh_position / Qh) ** 2
+            )
             self.Fm_ax3 = np.maximum(Fm_ax3_orig, Fm_ax3_mod)
 
             self.Fv_ax4 = np.linspace(startv, Qv, granularity)
@@ -751,21 +908,33 @@ class VHMEnvelope(Frame):
 
             for i in range(granularity):
                 Fm_inter_orig = Qm * np.sqrt(
-                    4 * a * (self.Fv_ax4 / Qv) * (1 - self.Fv_ax4 / Qv) + 16 * (1 - a) * (self.Fv_ax4 / Qv) ** 2 * (
-                                1 - self.Fv_ax4 / Qv) ** 2 - (self.Fh_ax4[i] / Qh) ** 2)
+                    4 * a * (self.Fv_ax4 / Qv) * (1 - self.Fv_ax4 / Qv)
+                    + 16
+                    * (1 - a)
+                    * (self.Fv_ax4 / Qv) ** 2
+                    * (1 - self.Fv_ax4 / Qv) ** 2
+                    - (self.Fh_ax4[i] / Qh) ** 2
+                )
                 Fm_inter_mod = np.minimum(Qmps_ax4, Qmpv_ax4) * np.sqrt(
-                    4 * a * (self.Fv_ax4 / Qv) * (1 - self.Fv_ax4 / Qv) + 16 * (1 - a) * (self.Fv_ax4 / Qv) ** 2 * (
-                                1 - self.Fv_ax4 / Qv) ** 2 - (self.Fh_ax4[i] / Qh) ** 2)
+                    4 * a * (self.Fv_ax4 / Qv) * (1 - self.Fv_ax4 / Qv)
+                    + 16
+                    * (1 - a)
+                    * (self.Fv_ax4 / Qv) ** 2
+                    * (1 - self.Fv_ax4 / Qv) ** 2
+                    - (self.Fh_ax4[i] / Qh) ** 2
+                )
                 Fm_inter = np.maximum(Fm_inter_orig, Fm_inter_mod)
                 Fm_ax4_before.append(Fm_inter)
 
             self.Fm_ax4 = np.nan_to_num(Fm_ax4_before)
             xs, ys = np.meshgrid(self.Fv_ax4, self.Fh_ax4)
 
-            self.label = '$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{B_{max}}$/B= %.2f' % (
-            Qv, Qh, Qm, Bm_B)
+            self.label = (
+                "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{B_{max}}$/B= %.2f"
+                % (Qv, Qh, Qm, Bm_B)
+            )
 
-            if graph_flag == 'Dimensioned':
+            if graph_flag == "Dimensioned":
                 self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
                 self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
                 self.ax3.plot(self.Fv_ax3, self.Fm_ax3)
@@ -773,40 +942,65 @@ class VHMEnvelope(Frame):
 
                 if self.factored_vh.GetSelection() == 1:
                     if Fm_position == 0:
-                        self.ax1.plot(self.Fh_ax1_factored, self.Fv_ax1_factored, '--', color='b')
-                        self.ax1.plot(0, wbfo - bs, '.', ms=5, color='b')
+                        self.ax1.plot(
+                            self.Fh_ax1_factored, self.Fv_ax1_factored, "--", color="b"
+                        )
+                        self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
 
-            elif graph_flag == 'Dimensionless':
+            elif graph_flag == "Dimensionless":
                 self.ax1.plot(self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label)
                 self.ax2.plot(self.Fh_ax2 / Qh, self.Fm_ax2 / Qm)
                 self.ax3.plot(self.Fv_ax3 / Qv, self.Fm_ax3 / Qm)
-                self.ax4.plot_surface(xs / Qv, ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3)
+                self.ax4.plot_surface(
+                    xs / Qv, ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3
+                )
 
                 if self.factored_vh.GetSelection() == 1:
                     if Fm_position == 0:
-                        self.ax1.plot(self.Fh_ax1_factored / Qh, self.Fv_ax1_factored / Qv, '--', color='b')
-                        self.ax1.plot(0, (wbfo - bs) / Qv, '.', ms=5, color='b')
+                        self.ax1.plot(
+                            self.Fh_ax1_factored / Qh,
+                            self.Fv_ax1_factored / Qv,
+                            "--",
+                            color="b",
+                        )
+                        self.ax1.plot(0, (wbfo - bs) / Qv, ".", ms=5, color="b")
 
-        if soil_flag == 'Clay':
+        if soil_flag == "Clay":
             if alpha_flag == 1:
                 self.Fv_ax1 = np.linspace(startv, Qv, granularity)
                 self.Fh_ax1 = Qh * np.sqrt(
-                    4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv)) + 16 * (1 - a) * (self.Fv_ax1 / Qv) ** 2 * (
-                                1 - (self.Fv_ax1 / Qv)) ** 2 - (Fm_position / Qm) ** 2)
+                    4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv))
+                    + 16
+                    * (1 - a)
+                    * (self.Fv_ax1 / Qv) ** 2
+                    * (1 - (self.Fv_ax1 / Qv)) ** 2
+                    - (Fm_position / Qm) ** 2
+                )
 
                 if Fm_position == 0:
-                    self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(self.Fv_ax1, self.Fh_ax1, wbfo,
-                                                                                        bs)
+                    self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(
+                        self.Fv_ax1, self.Fh_ax1, wbfo, bs
+                    )
 
                 self.Fh_ax2 = np.linspace(starth, Qh, granularity)
                 self.Fm_ax2 = Qm * np.sqrt(
-                    4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv)) + 16 * (1 - a) * (Fv_position / Qv) ** 2 * (
-                                1 - (Fv_position / Qv)) ** 2 - (self.Fh_ax2 / Qh) ** 2)
+                    4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                    + 16
+                    * (1 - a)
+                    * (Fv_position / Qv) ** 2
+                    * (1 - (Fv_position / Qv)) ** 2
+                    - (self.Fh_ax2 / Qh) ** 2
+                )
 
                 self.Fv_ax3 = np.linspace(startv, Qv, granularity)
                 self.Fm_ax3 = Qm * np.sqrt(
-                    4 * a * (self.Fv_ax3 / Qv) * (1 - (self.Fv_ax3 / Qv)) + 16 * (1 - a) * (self.Fv_ax3 / Qv) ** 2 * (
-                                1 - (self.Fv_ax3 / Qv)) ** 2 - (Fh_position / Qh) ** 2)
+                    4 * a * (self.Fv_ax3 / Qv) * (1 - (self.Fv_ax3 / Qv))
+                    + 16
+                    * (1 - a)
+                    * (self.Fv_ax3 / Qv) ** 2
+                    * (1 - (self.Fv_ax3 / Qv)) ** 2
+                    - (Fh_position / Qh) ** 2
+                )
 
                 self.Fv_ax4 = np.linspace(startv, Qv, granularity)
                 self.Fh_ax4 = np.linspace(starth, Qh, granularity)
@@ -814,16 +1008,23 @@ class VHMEnvelope(Frame):
 
                 for i in range(granularity):
                     Fm_inter = Qm * np.sqrt(
-                        4 * a * (self.Fv_ax4 / Qv) * (1 - self.Fv_ax4 / Qv) + 16 * (1 - a) * (self.Fv_ax4 / Qv) ** 2 * (
-                                    1 - self.Fv_ax4 / Qv) ** 2 - (self.Fh_ax4[i] / Qh) ** 2)
+                        4 * a * (self.Fv_ax4 / Qv) * (1 - self.Fv_ax4 / Qv)
+                        + 16
+                        * (1 - a)
+                        * (self.Fv_ax4 / Qv) ** 2
+                        * (1 - self.Fv_ax4 / Qv) ** 2
+                        - (self.Fh_ax4[i] / Qh) ** 2
+                    )
                     Fm_ax4_before.append(Fm_inter)
                 self.Fm_ax4 = np.nan_to_num(Fm_ax4_before)
                 xs, ys = np.meshgrid(self.Fv_ax4, self.Fh_ax4)
 
-                self.label = '$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$<0.50; a= %.2f; Suction N/A' % (
-                Qv, Qh, Qm, a)
+                self.label = (
+                    "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$<0.50; a= %.2f; Suction N/A"
+                    % (Qv, Qh, Qm, a)
+                )
 
-                if graph_flag == 'Dimensioned':
+                if graph_flag == "Dimensioned":
                     self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
                     self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
                     self.ax3.plot(self.Fv_ax3, self.Fm_ax3)
@@ -831,41 +1032,73 @@ class VHMEnvelope(Frame):
 
                     if self.factored_vh.GetSelection() == 1:
                         if Fm_position == 0:
-                            self.ax1.plot(self.Fh_ax1_factored, self.Fv_ax1_factored, '--', color='b')
-                            self.ax1.plot(0, wbfo - bs, '.', ms=5, color='b')
+                            self.ax1.plot(
+                                self.Fh_ax1_factored,
+                                self.Fv_ax1_factored,
+                                "--",
+                                color="b",
+                            )
+                            self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
 
-                elif graph_flag == 'Dimensionless':
+                elif graph_flag == "Dimensionless":
                     self.ax1.plot(self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label)
                     self.ax2.plot(self.Fh_ax2 / Qh, self.Fm_ax2 / Qm)
                     self.ax3.plot(self.Fv_ax3 / Qv, self.Fm_ax3 / Qm)
-                    self.ax4.plot_surface(xs / Qv, ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3)
+                    self.ax4.plot_surface(
+                        xs / Qv, ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3
+                    )
 
                 if self.factored_vh.GetSelection() == 1:
                     if Fm_position == 0:
-                        self.ax1.plot(self.Fh_ax1_factored / Qh, self.Fv_ax1_factored / Qv, '--', color='b')
-                        self.ax1.plot(0, (wbfo - bs) / Qv, '.', ms=5, color='b')
+                        self.ax1.plot(
+                            self.Fh_ax1_factored / Qh,
+                            self.Fv_ax1_factored / Qv,
+                            "--",
+                            color="b",
+                        )
+                        self.ax1.plot(0, (wbfo - bs) / Qv, ".", ms=5, color="b")
 
             if alpha_flag == 0:
                 if suction_flag == 0:
                     Fv_ax1_part1 = Qv * np.linspace(0.0, FvQvt, granularity)
                     Fv_ax1_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
                     self.Fv_ax1 = np.append(Fv_ax1_part1, Fv_ax1_part2)
-                    Fh_ax1_part1 = Qh * np.sqrt((alpha + m_alpha * (Fv_ax1_part1 / Qv)) ** 2 - (Fm_position / Qm) ** 2)
+                    Fh_ax1_part1 = Qh * np.sqrt(
+                        (alpha + m_alpha * (Fv_ax1_part1 / Qv)) ** 2
+                        - (Fm_position / Qm) ** 2
+                    )
                     Fh_ax1_part2 = Qh * np.sqrt(
-                        4 * a * (Fv_ax1_part2 / Qv) * (1 - (Fv_ax1_part2 / Qv)) + 16 * (1 - a) * (
-                                    Fv_ax1_part2 / Qv) ** 2 * (1 - (Fv_ax1_part2 / Qv)) ** 2 - (Fm_position / Qm) ** 2)
+                        4 * a * (Fv_ax1_part2 / Qv) * (1 - (Fv_ax1_part2 / Qv))
+                        + 16
+                        * (1 - a)
+                        * (Fv_ax1_part2 / Qv) ** 2
+                        * (1 - (Fv_ax1_part2 / Qv)) ** 2
+                        - (Fm_position / Qm) ** 2
+                    )
                     self.Fh_ax1 = np.append(Fh_ax1_part1, Fh_ax1_part2)
 
                     if Fm_position == 0:
-                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(self.Fv_ax1, self.Fh_ax1,
-                                                                                            wbfo, bs)
+                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(
+                            self.Fv_ax1, self.Fh_ax1, wbfo, bs
+                        )
 
-                    Fh_part1_lim = Qh * np.sqrt((alpha + m_alpha * (FvQvt)) ** 2 - (0 / Qm) ** 2)
+                    Fh_part1_lim = Qh * np.sqrt(
+                        (alpha + m_alpha * (FvQvt)) ** 2 - (0 / Qm) ** 2
+                    )
                     Fh_ax2_part1 = np.linspace(0.0, Fh_part1_lim, granularity)
                     Fh_ax2_part2 = np.linspace(0.0, Qh, granularity)
-                    Fm_ax2_part1 = Qm * np.sqrt((alpha + m_alpha * (Fv_position / Qv)) ** 2 - (Fh_ax2_part1 / Qh) ** 2)
-                    Fm_ax2_part2 = Qm * np.sqrt(4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv)) + 16 * (1 - a) * (
-                                Fv_position / Qv) ** 2 * (1 - (Fv_position / Qv)) ** 2 - (Fh_ax2_part2 / Qh) ** 2)
+                    Fm_ax2_part1 = Qm * np.sqrt(
+                        (alpha + m_alpha * (Fv_position / Qv)) ** 2
+                        - (Fh_ax2_part1 / Qh) ** 2
+                    )
+                    Fm_ax2_part2 = Qm * np.sqrt(
+                        4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                        + 16
+                        * (1 - a)
+                        * (Fv_position / Qv) ** 2
+                        * (1 - (Fv_position / Qv)) ** 2
+                        - (Fh_ax2_part2 / Qh) ** 2
+                    )
 
                     if Fv_position <= Qv * FvQvt:
                         self.Fh_ax2 = Fh_ax2_part1
@@ -877,10 +1110,18 @@ class VHMEnvelope(Frame):
                     Fv_ax3_part1 = Qv * np.linspace(0.0, FvQvt, granularity)
                     Fv_ax3_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
                     self.Fv_ax3 = np.append(Fv_ax3_part1, Fv_ax3_part2)
-                    Fm_ax3_part1 = Qm * np.sqrt((alpha + m_alpha * (Fv_ax3_part1 / Qv)) ** 2 - (Fh_position / Qh) ** 2)
+                    Fm_ax3_part1 = Qm * np.sqrt(
+                        (alpha + m_alpha * (Fv_ax3_part1 / Qv)) ** 2
+                        - (Fh_position / Qh) ** 2
+                    )
                     Fm_ax3_part2 = Qm * np.sqrt(
-                        4 * a * (Fv_ax3_part2 / Qv) * (1 - (Fv_ax3_part2 / Qv)) + 16 * (1 - a) * (
-                                    Fv_ax3_part2 / Qv) ** 2 * (1 - (Fv_ax3_part2 / Qv)) ** 2 - (Fh_position / Qh) ** 2)
+                        4 * a * (Fv_ax3_part2 / Qv) * (1 - (Fv_ax3_part2 / Qv))
+                        + 16
+                        * (1 - a)
+                        * (Fv_ax3_part2 / Qv) ** 2
+                        * (1 - (Fv_ax3_part2 / Qv)) ** 2
+                        - (Fh_position / Qh) ** 2
+                    )
                     self.Fm_ax3 = np.append(Fm_ax3_part1, Fm_ax3_part2)
 
                     Fv_ax4_part1 = np.linspace(0.0, Qv * FvQvt, granularity // 2)
@@ -889,7 +1130,9 @@ class VHMEnvelope(Frame):
 
                     for i in range(granularity):
                         Fm_ax4_part1_inter = Qm * np.sqrt(
-                            (alpha + m_alpha * (Fv_ax4_part1 / Qv)) ** 2 - (self.Fh_ax4[i] / Qh) ** 2)
+                            (alpha + m_alpha * (Fv_ax4_part1 / Qv)) ** 2
+                            - (self.Fh_ax4[i] / Qh) ** 2
+                        )
                         Fm_ax4_part1.append(Fm_ax4_part1_inter)
                     Fm_ax4_part1_nan = np.nan_to_num(Fm_ax4_part1)
 
@@ -898,9 +1141,13 @@ class VHMEnvelope(Frame):
 
                     for i in range(granularity):
                         Fm_ax4_part2_inter = Qm * np.sqrt(
-                            4 * a * (Fv_ax4_part2 / Qv) * (1 - Fv_ax4_part2 / Qv) + 16 * (1 - a) * (
-                                        Fv_ax4_part2 / Qv) ** 2 * (1 - Fv_ax4_part2 / Qv) ** 2 - (
-                                        self.Fh_ax4[i] / Qh) ** 2)
+                            4 * a * (Fv_ax4_part2 / Qv) * (1 - Fv_ax4_part2 / Qv)
+                            + 16
+                            * (1 - a)
+                            * (Fv_ax4_part2 / Qv) ** 2
+                            * (1 - Fv_ax4_part2 / Qv) ** 2
+                            - (self.Fh_ax4[i] / Qh) ** 2
+                        )
                         Fm_ax4_part2.append(Fm_ax4_part2_inter)
                     Fm_ax4_part2_nan = np.nan_to_num(Fm_ax4_part2)
 
@@ -908,57 +1155,119 @@ class VHMEnvelope(Frame):
                     self.Fm_ax4 = np.append(Fm_ax4_part1_nan, Fm_ax4_part2_nan, axis=1)
                     Xs, Ys = np.meshgrid(self.Fv_ax4, self.Fh_ax4)
 
-                    self.label = '$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$= %.2f; a= %.2f; Suction' % (
-                    Qv, Qh, Qm, alpha, a)
+                    self.label = (
+                        "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$= %.2f; a= %.2f; Suction"
+                        % (Qv, Qh, Qm, alpha, a)
+                    )
 
-                    if graph_flag == 'Dimensioned':
+                    if graph_flag == "Dimensioned":
                         self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
                         self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
                         self.ax3.plot(self.Fv_ax3, self.Fm_ax3)
-                        self.ax4.plot_surface(Xs, Ys, self.Fm_ax4, linewidth=0.1, alpha=0.3)
+                        self.ax4.plot_surface(
+                            Xs, Ys, self.Fm_ax4, linewidth=0.1, alpha=0.3
+                        )
 
                         if self.factored_vh.GetSelection() == 1:
                             if Fm_position == 0:
-                                self.ax1.plot(self.Fh_ax1_factored, self.Fv_ax1_factored, '--', color='b')
-                                self.ax1.plot(0, wbfo - bs, '.', ms=5, color='b')
+                                self.ax1.plot(
+                                    self.Fh_ax1_factored,
+                                    self.Fv_ax1_factored,
+                                    "--",
+                                    color="b",
+                                )
+                                self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
 
-                    elif graph_flag == 'Dimensionless':
-                        self.ax1.plot(self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label)
+                    elif graph_flag == "Dimensionless":
+                        self.ax1.plot(
+                            self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label
+                        )
                         self.ax2.plot(self.Fh_ax2 / Qh, self.Fm_ax2 / Qm)
                         self.ax3.plot(self.Fv_ax3 / Qv, self.Fm_ax3 / Qm)
-                        self.ax4.plot_surface(Xs / Qv, Ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3)
+                        self.ax4.plot_surface(
+                            Xs / Qv, Ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3
+                        )
 
                         if self.factored_vh.GetSelection() == 1:
                             if Fm_position == 0:
-                                self.ax1.plot(self.Fh_ax1_factored / Qh, self.Fv_ax1_factored / Qv, '--', color='b')
-                                self.ax1.plot(0, (wbfo - bs) / Qv, '.', ms=5, color='b')
+                                self.ax1.plot(
+                                    self.Fh_ax1_factored / Qh,
+                                    self.Fv_ax1_factored / Qv,
+                                    "--",
+                                    color="b",
+                                )
+                                self.ax1.plot(0, (wbfo - bs) / Qv, ".", ms=5, color="b")
 
                 if suction_flag == 1:
                     Fv_ax1_part1 = np.linspace(1, Qv * FvQvt, granularity)
                     Fv_ax1_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
                     self.Fv_ax1 = np.append(Fv_ax1_part1, Fv_ax1_part2)
-                    Fh_ax1_part1 = Qh * (alpha + m_alpha * (Fv_ax1_part1 / Qv)) * np.sqrt(1 - (Fm_position / (
-                                Qm * np.sqrt(
-                            16 * (1 - a) * (Fv_ax1_part1 / Qv) ** 2 * (1 - (Fv_ax1_part1 / Qv)) ** 2 + 4 * a * (
-                                        Fv_ax1_part1 / Qv) * (1 - (Fv_ax1_part1 / Qv))))) ** 2)
+                    Fh_ax1_part1 = (
+                        Qh
+                        * (alpha + m_alpha * (Fv_ax1_part1 / Qv))
+                        * np.sqrt(
+                            1
+                            - (
+                                Fm_position
+                                / (
+                                    Qm
+                                    * np.sqrt(
+                                        16
+                                        * (1 - a)
+                                        * (Fv_ax1_part1 / Qv) ** 2
+                                        * (1 - (Fv_ax1_part1 / Qv)) ** 2
+                                        + 4
+                                        * a
+                                        * (Fv_ax1_part1 / Qv)
+                                        * (1 - (Fv_ax1_part1 / Qv))
+                                    )
+                                )
+                            )
+                            ** 2
+                        )
+                    )
                     Fh_ax1_part2 = Qh * np.sqrt(
-                        4 * a * (Fv_ax1_part2 / Qv) * (1 - (Fv_ax1_part2 / Qv)) + 16 * (1 - a) * (
-                                    Fv_ax1_part2 / Qv) ** 2 * (1 - (Fv_ax1_part2 / Qv)) ** 2 - (Fm_position / Qm) ** 2)
+                        4 * a * (Fv_ax1_part2 / Qv) * (1 - (Fv_ax1_part2 / Qv))
+                        + 16
+                        * (1 - a)
+                        * (Fv_ax1_part2 / Qv) ** 2
+                        * (1 - (Fv_ax1_part2 / Qv)) ** 2
+                        - (Fm_position / Qm) ** 2
+                    )
                     self.Fh_ax1 = np.append(Fh_ax1_part1, Fh_ax1_part2)
 
                     if Fm_position == 0:
-                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(self.Fv_ax1, self.Fh_ax1,
-                                                                                            wbfo, bs)
+                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(
+                            self.Fv_ax1, self.Fh_ax1, wbfo, bs
+                        )
 
-                    Fh_part1_lim = Qh * np.sqrt((alpha + m_alpha * (FvQvt)) ** 2 - (0 / Qm) ** 2)
+                    Fh_part1_lim = Qh * np.sqrt(
+                        (alpha + m_alpha * (FvQvt)) ** 2 - (0 / Qm) ** 2
+                    )
                     Fh_ax2_part1 = np.linspace(0.0, Fh_part1_lim, granularity)
                     Fh_ax2_part2 = np.linspace(0.0, Qh, granularity)
-                    Fm_ax2_part1 = (Qm * np.sqrt(
-                        16 * (1 - a) * (Fv_position / Qv) ** 2 * (1 - (Fv_position / Qv)) ** 2 + 4 * a * (
-                                    Fv_position / Qv) * (1 - (Fv_position / Qv)))) * np.sqrt(
-                        1 - (Fh_ax2_part1 / ((alpha + m_alpha * (Fv_position / Qv)) * Qh)) ** 2)
-                    Fm_ax2_part2 = Qm * np.sqrt(4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv)) + 16 * (1 - a) * (
-                                Fv_position / Qv) ** 2 * (1 - (Fv_position / Qv)) ** 2 - (Fh_ax2_part2 / Qh) ** 2)
+                    Fm_ax2_part1 = (
+                        Qm
+                        * np.sqrt(
+                            16
+                            * (1 - a)
+                            * (Fv_position / Qv) ** 2
+                            * (1 - (Fv_position / Qv)) ** 2
+                            + 4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                        )
+                    ) * np.sqrt(
+                        1
+                        - (Fh_ax2_part1 / ((alpha + m_alpha * (Fv_position / Qv)) * Qh))
+                        ** 2
+                    )
+                    Fm_ax2_part2 = Qm * np.sqrt(
+                        4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                        + 16
+                        * (1 - a)
+                        * (Fv_position / Qv) ** 2
+                        * (1 - (Fv_position / Qv)) ** 2
+                        - (Fh_ax2_part2 / Qh) ** 2
+                    )
 
                     if Fv_position <= Qv * FvQvt:
                         self.Fh_ax2 = Fh_ax2_part1
@@ -970,13 +1279,28 @@ class VHMEnvelope(Frame):
                     Fv_ax3_part1 = Qv * np.linspace(0.0, FvQvt, granularity)
                     Fv_ax3_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
                     self.Fv_ax3 = np.append(Fv_ax3_part1, Fv_ax3_part2)
-                    Fm_ax3_part1 = (Qm * np.sqrt(
-                        16 * (1 - a) * (Fv_ax3_part1 / Qv) ** 2 * (1 - (Fv_ax3_part1 / Qv)) ** 2 + 4 * a * (
-                                    Fv_ax3_part1 / Qv) * (1 - (Fv_ax3_part1 / Qv)))) * np.sqrt(
-                        1 - (Fh_position / ((alpha + m_alpha * (Fv_ax3_part1 / Qv)) * Qh)) ** 2)
+                    Fm_ax3_part1 = (
+                        Qm
+                        * np.sqrt(
+                            16
+                            * (1 - a)
+                            * (Fv_ax3_part1 / Qv) ** 2
+                            * (1 - (Fv_ax3_part1 / Qv)) ** 2
+                            + 4 * a * (Fv_ax3_part1 / Qv) * (1 - (Fv_ax3_part1 / Qv))
+                        )
+                    ) * np.sqrt(
+                        1
+                        - (Fh_position / ((alpha + m_alpha * (Fv_ax3_part1 / Qv)) * Qh))
+                        ** 2
+                    )
                     Fm_ax3_part2 = Qm * np.sqrt(
-                        4 * a * (Fv_ax3_part2 / Qv) * (1 - (Fv_ax3_part2 / Qv)) + 16 * (1 - a) * (
-                                    Fv_ax3_part2 / Qv) ** 2 * (1 - (Fv_ax3_part2 / Qv)) ** 2 - (Fh_position / Qh) ** 2)
+                        4 * a * (Fv_ax3_part2 / Qv) * (1 - (Fv_ax3_part2 / Qv))
+                        + 16
+                        * (1 - a)
+                        * (Fv_ax3_part2 / Qv) ** 2
+                        * (1 - (Fv_ax3_part2 / Qv)) ** 2
+                        - (Fh_position / Qh) ** 2
+                    )
                     self.Fm_ax3 = np.append(Fm_ax3_part1, Fm_ax3_part2)
 
                     Fv_ax4_part1 = np.linspace(0.0, Qv * FvQvt, granularity // 2)
@@ -984,10 +1308,26 @@ class VHMEnvelope(Frame):
                     Fm_ax4_part1 = []
 
                     for i in range(granularity):
-                        Fm_ax4_part1_inter = (Qm * np.sqrt(
-                            16 * (1 - a) * (Fv_ax4_part1 / Qv) ** 2 * (1 - (Fv_ax4_part1 / Qv)) ** 2 + 4 * a * (
-                                        Fv_ax4_part1 / Qv) * (1 - (Fv_ax4_part1 / Qv)))) * np.sqrt(
-                            1 - (self.Fh_ax4[i] / ((alpha + m_alpha * (Fv_ax4_part1 / Qv)) * Qh)) ** 2)
+                        Fm_ax4_part1_inter = (
+                            Qm
+                            * np.sqrt(
+                                16
+                                * (1 - a)
+                                * (Fv_ax4_part1 / Qv) ** 2
+                                * (1 - (Fv_ax4_part1 / Qv)) ** 2
+                                + 4
+                                * a
+                                * (Fv_ax4_part1 / Qv)
+                                * (1 - (Fv_ax4_part1 / Qv))
+                            )
+                        ) * np.sqrt(
+                            1
+                            - (
+                                self.Fh_ax4[i]
+                                / ((alpha + m_alpha * (Fv_ax4_part1 / Qv)) * Qh)
+                            )
+                            ** 2
+                        )
                         Fm_ax4_part1.append(Fm_ax4_part1_inter)
                     Fm_ax4_part1_nan = np.nan_to_num(Fm_ax4_part1)
 
@@ -996,9 +1336,13 @@ class VHMEnvelope(Frame):
 
                     for i in range(granularity):
                         Fm_ax4_part2_inter = Qm * np.sqrt(
-                            4 * a * (Fv_ax4_part2 / Qv) * (1 - Fv_ax4_part2 / Qv) + 16 * (1 - a) * (
-                                        Fv_ax4_part2 / Qv) ** 2 * (1 - Fv_ax4_part2 / Qv) ** 2 - (
-                                        self.Fh_ax4[i] / Qh) ** 2)
+                            4 * a * (Fv_ax4_part2 / Qv) * (1 - Fv_ax4_part2 / Qv)
+                            + 16
+                            * (1 - a)
+                            * (Fv_ax4_part2 / Qv) ** 2
+                            * (1 - Fv_ax4_part2 / Qv) ** 2
+                            - (self.Fh_ax4[i] / Qh) ** 2
+                        )
                         Fm_ax4_part2.append(Fm_ax4_part2_inter)
                     Fm_ax4_part2_nan = np.nan_to_num(Fm_ax4_part2)
 
@@ -1006,39 +1350,62 @@ class VHMEnvelope(Frame):
                     self.Fm_ax4 = np.append(Fm_ax4_part1_nan, Fm_ax4_part2_nan, axis=1)
                     Xs, Ys = np.meshgrid(self.Fv_ax4, self.Fh_ax4)
 
-                    self.label = '$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$= %.2f; a= %.2f; No Suction' % (
-                    Qv, Qh, Qm, alpha, a)
-                    if graph_flag == 'Dimensioned':
+                    self.label = (
+                        "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$= %.2f; a= %.2f; No Suction"
+                        % (Qv, Qh, Qm, alpha, a)
+                    )
+                    if graph_flag == "Dimensioned":
                         self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
                         self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
                         self.ax3.plot(self.Fv_ax3, self.Fm_ax3)
-                        self.ax4.plot_surface(Xs, Ys, self.Fm_ax4, linewidth=0.1, alpha=0.3)
+                        self.ax4.plot_surface(
+                            Xs, Ys, self.Fm_ax4, linewidth=0.1, alpha=0.3
+                        )
 
                         if self.factored_vh.GetSelection() == 1:
                             if Fm_position == 0:
-                                self.ax1.plot(self.Fh_ax1_factored, self.Fv_ax1_factored, '--', color='b')
-                                self.ax1.plot(0, wbfo - bs, '.', ms=5, color='b')
+                                self.ax1.plot(
+                                    self.Fh_ax1_factored,
+                                    self.Fv_ax1_factored,
+                                    "--",
+                                    color="b",
+                                )
+                                self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
 
-                    elif graph_flag == 'Dimensionless':
-                        self.ax1.plot(self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label)
+                    elif graph_flag == "Dimensionless":
+                        self.ax1.plot(
+                            self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label
+                        )
                         self.ax2.plot(self.Fh_ax2 / Qh, self.Fm_ax2 / Qm)
                         self.ax3.plot(self.Fv_ax3 / Qv, self.Fm_ax3 / Qm)
-                        self.ax4.plot_surface(Xs / Qv, Ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3)
+                        self.ax4.plot_surface(
+                            Xs / Qv, Ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3
+                        )
 
                         if self.factored_vh.GetSelection() == 1:
                             if Fm_position == 0:
-                                self.ax1.plot(self.Fh_ax1_factored / Qh, self.Fv_ax1_factored / Qv, '--', color='b')
-                                self.ax1.plot(0, (wbfo - bs) / Qv, '.', ms=5, color='b')
+                                self.ax1.plot(
+                                    self.Fh_ax1_factored / Qh,
+                                    self.Fv_ax1_factored / Qv,
+                                    "--",
+                                    color="b",
+                                )
+                                self.ax1.plot(0, (wbfo - bs) / Qv, ".", ms=5, color="b")
 
         self.handles, self.labels = self.ax1.get_legend_handles_labels()
-        self.ax4.legend(self.handles, self.labels, bbox_to_anchor=(0, -0.1), loc='upper left',
-                        prop={'size': self.fontSize})
+        self.ax4.legend(
+            self.handles,
+            self.labels,
+            bbox_to_anchor=(0, -0.1),
+            loc="upper left",
+            prop={"size": self.fontSize},
+        )
         self.AddGraphLabels()
         self.DrawReacts()
         self.canvas.draw()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = App(False)
     frame = VHMEnvelope(parent=None)
     frame.Show()
