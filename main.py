@@ -21,6 +21,7 @@ from wx import (
     ALIGN_CENTRE_VERTICAL,
     ALIGN_LEFT,
     ALIGN_RIGHT,
+    DEFAULT_FRAME_STYLE,
     EVT_BUTTON,
     EVT_RADIOBOX,
     EVT_SPINCTRL,
@@ -28,6 +29,7 @@ from wx import (
     GROW,
     HORIZONTAL,
     LEFT,
+    RESIZE_BORDER,
     SL_AUTOTICKS,
     SL_LABELS,
     TOP,
@@ -44,7 +46,7 @@ np.seterr(invalid='ignore', divide='ignore')
 class VHMEnvelope(Frame):
 
     def __init__(self, parent):
-        Frame.__init__(self, parent, -1, 'ISO V-H-M Envelope ')
+        Frame.__init__(self, parent, -1, 'ISO V-H-M Envelope ', style=DEFAULT_FRAME_STYLE ^ RESIZE_BORDER)
 
         # Frame items
 
@@ -110,7 +112,7 @@ class VHMEnvelope(Frame):
             panel,
             -1,
             value=self.Fv_value_default,
-            minValue=0.0,
+            minValue=0,
             maxValue=self.Qv_value.GetValue(),
             size=(150, -1),
             style=SL_LABELS,
@@ -120,7 +122,7 @@ class VHMEnvelope(Frame):
             panel,
             -1,
             value=self.Fh_value_default,
-            minValue=0.0,
+            minValue=0,
             maxValue=self.Qh_value.GetValue(),
             size=(150, -1),
             style=SL_LABELS,
@@ -130,7 +132,7 @@ class VHMEnvelope(Frame):
             panel,
             -1,
             value=self.Fm_value_default,
-            minValue=0.0,
+            minValue=0,
             maxValue=self.Qm_value.GetValue(),
             size=(150, -1),
             style=SL_LABELS,
@@ -267,24 +269,24 @@ class VHMEnvelope(Frame):
         sizer_two.Add(sizer_two_sub5, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
         sizer_two.Add(sizer_two_sub6, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
 
-        sizer_three = BoxSizer(HORIZONTAL)
-        sizer_three.Add(self.draw_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        sizer_three.Add(self.clear_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        sizer_three.Add(self.import_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        sizer_three.Add(self.clear_react_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        sizer_three.Add(self.save_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        sizer_three.Add(self.clear_save_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        sizer_three.Add(self.plot_selection_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
+        actions = BoxSizer(HORIZONTAL)
+        actions.Add(self.draw_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.clear_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.import_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.clear_react_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.save_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.clear_save_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.plot_selection_button, flag=ALIGN_CENTRE_VERTICAL )  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
 
-        layout_sizer = BoxSizer(VERTICAL)
-        layout_sizer.Add(sizer_one, flag=GROW)
-        layout_sizer.Add(sizer_two, flag=EXPAND)
-        layout_sizer.Add(sizer_three, flag=EXPAND)
-        layout_sizer.Add(self.canvas, 1, LEFT | TOP | GROW)
-        layout_sizer.Add(self.toolbar, flag=EXPAND)
+        view = BoxSizer(VERTICAL)
+        view.Add(sizer_one, flag=GROW)
+        view.Add(sizer_two, flag=EXPAND)
+        view.Add(actions, flag=EXPAND)
+        view.Add(self.canvas, 1, flag=LEFT | TOP | GROW)
+        view.Add(self.toolbar, flag=EXPAND)
 
-        panel.SetSizer(layout_sizer)
-        layout_sizer.Fit(self)
+        panel.SetSizer(view)
+        view.Fit(self)
 
         # Events
 
