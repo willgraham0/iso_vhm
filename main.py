@@ -52,40 +52,50 @@ class VHMEnvelope(Frame):
             parent, -1, "ISO V-H-M Envelope ", style=DEFAULT_FRAME_STYLE ^ RESIZE_BORDER
         )
 
-        # Frame items
+        # Frame items.
 
         panel = Panel(self)
         panel.SetBackgroundColour("white")
 
-        # Panel items
+        # Panel items.
 
-        self.qv_text = StaticText(panel, -1, "Qv:")
-        self.qv_value = SpinCtrl(
-            panel, -1, min=0, max=100000, initial=10000, size=(75, -1)
-        )
-        self.qh_text = StaticText(panel, -1, "Qh:")
-        self.qh_value = SpinCtrl(
-            panel, -1, min=0, max=100000, initial=1000, size=(75, -1)
-        )
-        self.qm_text = StaticText(panel, -1, "Qm:")
-        self.qm_value = SpinCtrl(
-            panel, -1, min=0, max=100000, initial=20000, size=(75, -1)
-        )
+        # Toggle fields.
+        fields = BoxSizer(HORIZONTAL)
+        self.foundation = RadioBox(panel, -1, label="Foundation", choices=["Sand", "Clay"])  # Sand or Clay.
+        self.unit = RadioBox(panel, -1, label="Unit", choices=["Dimensioned", "Dimensionless"])  # Units.
+        self.suction = RadioBox(panel, -1, label="Suction", choices=["Available", "Unavailable"])  # Suction.
+        self.alpha = RadioBox(panel, -1, label="Adhesion", choices=[u"\u0251>=0.5", u"\u0251<0.5"])  # Adhesion.
+        self.factored_vh = RadioBox(panel, -1, label="Factored V-H", choices=["Off", "On"])  # Factored VH.
+        fields.Add(self.foundation)
+        fields.Add(self.unit)
+        fields.Add(self.suction)
+        fields.Add(self.alpha)
+        fields.Add(self.factored_vh)
 
-        self.foundation = RadioBox(
-            panel, -1, label="Foundation", choices=["Sand", "Clay"]
-        )
-        self.unit = RadioBox(
-            panel, -1, label="Unit", choices=["Dimensioned", "Dimensionless"]
-        )
-        self.suction_box = RadioBox(
-            panel, -1, label="Suction", choices=["Available", "Unavailable"]
-        )
-        self.alpha_box = RadioBox(
-            panel, -1, label="Adhesion", choices=[u"\u0251>=0.5", u"\u0251<0.5"]
-        )
+        # Qv - Vertical Force Capacity.
+        vertical_capacity = BoxSizer(HORIZONTAL)
+        qv_text = StaticText(panel, -1, "Qv:")
+        self.qv_value = SpinCtrl(panel, -1, min=0, max=100000, initial=10000, size=(75, -1))
+        vertical_capacity.Add(qv_text, flag=ALIGN_CENTRE_VERTICAL)
+        vertical_capacity.Add(self.qv_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        self.diameter_text = StaticText(panel, -1, "Bmax/B:")
+        # Qh - Horizontal Force Capacity.
+        horizontal_capacity = BoxSizer(HORIZONTAL)
+        qh_text = StaticText(panel, -1, "Qh:")
+        self.qh_value = SpinCtrl(panel, -1, min=0, max=100000, initial=1000, size=(75, -1))
+        horizontal_capacity.Add(qh_text, flag=ALIGN_CENTRE_VERTICAL)
+        horizontal_capacity.Add(self.qh_value, flag=ALIGN_CENTRE_VERTICAL)
+
+        # Qm - Moment Capacity.
+        moment_capacity = BoxSizer(HORIZONTAL)
+        qm_text = StaticText(panel, -1, "Qm:")
+        self.qm_value = SpinCtrl(panel, -1, min=0, max=100000, initial=20000, size=(75, -1))
+        moment_capacity.Add(qm_text, flag=ALIGN_CENTRE_VERTICAL)
+        moment_capacity.Add(self.qm_value, flag=ALIGN_CENTRE_VERTICAL)
+
+        # Contact Diameter.
+        contact_diameter = BoxSizer(HORIZONTAL)
+        diameter_text = StaticText(panel, -1, "Bmax/B:")
         self.diameter_value = FloatSpin(
             panel,
             -1,
@@ -97,7 +107,12 @@ class VHMEnvelope(Frame):
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
-        self.a_text = StaticText(panel, -1, "a")
+        contact_diameter.Add(diameter_text, flag=ALIGN_CENTRE_VERTICAL)
+        contact_diameter.Add(self.diameter_value, flag=ALIGN_CENTRE_VERTICAL)
+
+        # Depth parameter.
+        depth_parameter = BoxSizer(HORIZONTAL)
+        a_text = StaticText(panel, -1, "a:")
         self.a_value = FloatSpin(
             panel,
             -1,
@@ -109,7 +124,12 @@ class VHMEnvelope(Frame):
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
-        self.alpha_text = StaticText(panel, -1, u"\u0251")
+        depth_parameter.Add(a_text, flag=ALIGN_CENTRE_VERTICAL)
+        depth_parameter.Add(self.a_value, flag=ALIGN_CENTRE_VERTICAL)
+
+        # Adhesion.
+        adhesion = BoxSizer(HORIZONTAL)
+        alpha_text = StaticText(panel, -1, u"\u0251:")
         self.alpha_value = FloatSpin(
             panel,
             -1,
@@ -121,58 +141,88 @@ class VHMEnvelope(Frame):
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
+        adhesion.Add(alpha_text, flag=ALIGN_CENTRE_VERTICAL)
+        adhesion.Add(self.alpha_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        self.Fv_value_default = self.qv_value.GetValue() // 2
-        self.Fh_value_default = 0
-        self.Fm_value_default = 0
-        self.Fv_position_text = StaticText(panel, -1, "Fv:")
-        self.Fv_position_value = Slider(
+        # 2-d plot slice defaults.
+
+        # Fv - Vertical Force.
+        vertical_force = BoxSizer(HORIZONTAL)
+        fv_position_text = StaticText(panel, -1, "Fv:")
+        self.fv_position_value = Slider(
             panel,
             -1,
-            value=self.Fv_value_default,
+            value=self.qv_value.GetValue() // 2,
             minValue=0,
             maxValue=self.qv_value.GetValue(),
             size=(150, -1),
             style=SL_LABELS,
         )
-        self.Fh_position_text = StaticText(panel, -1, "Fh:")
-        self.Fh_position_value = Slider(
+        vertical_force.Add(fv_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
+        vertical_force.Add(self.fv_position_value, flag=ALIGN_CENTRE_VERTICAL)
+
+        # Fh - Horizontal Force.
+        horizontal_force = BoxSizer(HORIZONTAL)
+        fh_position_text = StaticText(panel, -1, "Fh:")
+        self.fh_position_value = Slider(
             panel,
             -1,
-            value=self.Fh_value_default,
+            value=0,
             minValue=0,
             maxValue=self.qh_value.GetValue(),
             size=(150, -1),
             style=SL_LABELS,
         )
-        self.Fm_position_text = StaticText(panel, -1, "Fm:")
-        self.Fm_position_value = Slider(
+        horizontal_force.Add(fh_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
+        horizontal_force.Add(self.fh_position_value, flag=ALIGN_CENTRE_VERTICAL)
+
+        # Fm - Moment.
+        moment = BoxSizer(HORIZONTAL)
+        fm_position_text = StaticText(panel, -1, "Fm:")
+        self.fm_position_value = Slider(
             panel,
             -1,
-            value=self.Fm_value_default,
+            value=0,
             minValue=0,
             maxValue=self.qm_value.GetValue(),
             size=(150, -1),
             style=SL_LABELS,
         )
+        moment.Add(fm_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
+        moment.Add(self.fm_position_value, flag=ALIGN_CENTRE_VERTICAL)
 
+        # Actions.
+        actions = BoxSizer(HORIZONTAL)
         self.draw_button = Button(panel, -1, "Draw Plots")
         self.clear_button = Button(panel, -1, "Clear Plots and Reacts")
         self.import_button = Button(panel, -1, "Import ISO Reactions")
-        self.clear_react_button = Button(panel, -1, "Clear Reactions")
+        self.clear_reacts_button = Button(panel, -1, "Clear Reactions")
         self.save_button = Button(panel, -1, "Save Selection")
         self.clear_save_button = Button(panel, -1, "Clear Selection")
         self.plot_selection_button = Button(panel, -1, "Plot Selection")
+        actions.Add(self.draw_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.clear_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.import_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.clear_reacts_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.save_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.clear_save_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.plot_selection_button, flag=ALIGN_CENTRE_VERTICAL)
 
+        # Wbfo.
+        wbfo = BoxSizer(HORIZONTAL)
+        wbfo_text = StaticText(panel, -1, "Wbfo:")
         self.wbfo_value = SpinCtrl(
             panel, -1, min=0, max=10000, initial=200, size=(150, -1)
         )
-        self.wbfo_text = StaticText(panel, -1, "Wbfo:")
+        wbfo.Add(wbfo_text, flag=ALIGN_CENTRE_VERTICAL)
+        wbfo.Add(self.wbfo_value, flag=ALIGN_CENTRE_VERTICAL)
+
+        # Diameter
+        factored_vh = BoxSizer(HORIZONTAL)
         self.bs_value = SpinCtrl(panel, -1, min=0, max=1000, initial=20, size=(150, -1))
         self.bs_text = StaticText(panel, -1, "Bs:")
-        self.factored_vh = RadioBox(
-            panel, -1, label="Factored V-H", choices=["Off", "On"]
-        )
+        factored_vh.Add(self.bs_text, flag=ALIGN_CENTRE_VERTICAL)
+        factored_vh.Add(self.bs_value, flag=ALIGN_CENTRE_VERTICAL)
 
         # Selection attributes
 
@@ -220,30 +270,6 @@ class VHMEnvelope(Frame):
 
         # Sizers
 
-        vertical_capacity = BoxSizer(HORIZONTAL)
-        vertical_capacity.Add(self.qv_text, flag=ALIGN_CENTRE_VERTICAL)
-        vertical_capacity.Add(self.qv_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        horizontal_capacity = BoxSizer(HORIZONTAL)
-        horizontal_capacity.Add(self.qh_text, flag=ALIGN_CENTRE_VERTICAL)
-        horizontal_capacity.Add(self.qh_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        moment_capacity = BoxSizer(HORIZONTAL)
-        moment_capacity.Add(self.qm_text, flag=ALIGN_CENTRE_VERTICAL)
-        moment_capacity.Add(self.qm_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        contact_diameter = BoxSizer(HORIZONTAL)
-        contact_diameter.Add(self.diameter_text, flag=ALIGN_CENTRE_VERTICAL)
-        contact_diameter.Add(self.diameter_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        depth_parameter = BoxSizer(HORIZONTAL)
-        depth_parameter.Add(self.a_text, flag=ALIGN_CENTRE_VERTICAL)
-        depth_parameter.Add(self.a_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        adhesion = BoxSizer(HORIZONTAL)
-        adhesion.Add(self.alpha_text, flag=ALIGN_CENTRE_VERTICAL)
-        adhesion.Add(self.alpha_value, flag=ALIGN_CENTRE_VERTICAL)
-
         capacities = BoxSizer(HORIZONTAL)
         capacities.Add(vertical_capacity)
         capacities.Add(horizontal_capacity)
@@ -254,67 +280,22 @@ class VHMEnvelope(Frame):
         ratios.Add(depth_parameter)
         ratios.Add(adhesion)
 
-        fields = BoxSizer(HORIZONTAL)
-        fields.Add(self.foundation)
-        fields.Add(self.unit)
-        fields.Add(self.suction_box)
-        fields.Add(self.alpha_box)
-
         parameters = BoxSizer(HORIZONTAL)
         parameters.Add(capacities, flag=ALIGN_CENTRE_VERTICAL)
         parameters.Add(ratios, flag=ALIGN_CENTRE_VERTICAL)
 
-        sizer_two_sub1 = BoxSizer(HORIZONTAL)
-        sizer_two_sub1.Add(
-            self.Fv_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT
-        )
-        sizer_two_sub1.Add(self.Fv_position_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        sizer_two_sub2 = BoxSizer(HORIZONTAL)
-        sizer_two_sub2.Add(
-            self.Fh_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT
-        )
-        sizer_two_sub2.Add(self.Fh_position_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        sizer_two_sub3 = BoxSizer(HORIZONTAL)
-        sizer_two_sub3.Add(
-            self.Fm_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT
-        )
-        sizer_two_sub3.Add(self.Fm_position_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        sizer_two_sub4 = BoxSizer(HORIZONTAL)
-        sizer_two_sub4.Add(self.factored_vh, flag=ALIGN_CENTRE_VERTICAL)
-
-        sizer_two_sub5 = BoxSizer(HORIZONTAL)
-        sizer_two_sub5.Add(self.wbfo_text, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_two_sub5.Add(self.wbfo_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        sizer_two_sub6 = BoxSizer(HORIZONTAL)
-        sizer_two_sub6.Add(self.bs_text, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_two_sub6.Add(self.bs_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        sizer_two = BoxSizer(HORIZONTAL)
-        sizer_two.Add(sizer_two_sub1)
-        sizer_two.Add(sizer_two_sub2)
-        sizer_two.Add(sizer_two_sub3)
-        sizer_two.Add(sizer_two_sub4, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_two.Add(sizer_two_sub5, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_two.Add(sizer_two_sub6, flag=ALIGN_CENTRE_VERTICAL)
-
-        actions = BoxSizer(HORIZONTAL)
-        actions.Add(self.draw_button, flag=ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.clear_button, flag=ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.import_button, flag=ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.clear_react_button, flag=ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.save_button, flag=ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.clear_save_button, flag=ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.plot_selection_button, flag=ALIGN_CENTRE_VERTICAL)
+        forces = BoxSizer(HORIZONTAL)
+        forces.Add(vertical_force, flag=ALIGN_CENTRE_VERTICAL)
+        forces.Add(horizontal_force, flag=ALIGN_CENTRE_VERTICAL)
+        forces.Add(moment, flag=ALIGN_CENTRE_VERTICAL)
+        forces.Add(wbfo, flag=ALIGN_CENTRE_VERTICAL)
+        forces.Add(factored_vh, flag=ALIGN_CENTRE_VERTICAL)
 
         view = BoxSizer(VERTICAL)
         view.Add(fields)
         view.Add(parameters)
-        view.Add(sizer_two, flag=EXPAND)
-        view.Add(actions, flag=EXPAND)
+        view.Add(forces)
+        view.Add(actions)
         view.Add(self.canvas, 1, flag=LEFT | TOP | GROW)
         view.Add(self.toolbar, flag=EXPAND)
 
@@ -335,7 +316,7 @@ class VHMEnvelope(Frame):
         self.Bind(EVT_BUTTON, self.save_selection, self.save_button)
         self.Bind(EVT_BUTTON, self.clear_selection, self.clear_save_button)
         self.Bind(EVT_BUTTON, self.plot_selection, self.plot_selection_button)
-        self.Bind(EVT_BUTTON, self.clear_reacts_with_event, self.clear_react_button)
+        self.Bind(EVT_BUTTON, self.clear_reacts_with_event, self.clear_reacts_button)
 
         self.Bind(EVT_RADIOBOX, self.on_factored_vh_box, self.factored_vh)
 
@@ -344,8 +325,8 @@ class VHMEnvelope(Frame):
         self.a_value.SetValue(0.0)
         self.a_value.Disable()
         self.alpha_value.Disable()
-        self.alpha_box.Disable()
-        self.suction_box.Disable()
+        self.alpha.Disable()
+        self.suction.Disable()
         self.selection_counter = 0
         self.first_plot_flag = 0
 
@@ -588,8 +569,8 @@ class VHMEnvelope(Frame):
 
     def on_foundation_box(self, event):
         if self.foundation.GetSelection() == 0:
-            self.suction_box.Disable()
-            self.alpha_box.Disable()
+            self.suction.Disable()
+            self.alpha.Disable()
             self.a_value.SetValue(0.00)
             self.alpha_value.SetValue(0.5)
             self.a_value.Disable()
@@ -601,29 +582,28 @@ class VHMEnvelope(Frame):
             self.diameter_value.Disable()
             self.a_value.Enable()
             self.alpha_value.Enable()
-            self.alpha_box.Enable()
-            self.suction_box.Enable()
+            self.alpha.Enable()
+            self.suction.Enable()
 
     def on_factored_vh_box(self, event):
         if self.factored_vh.GetSelection() == 0:
             self.wbfo_value.Disable()
             self.bs_value.Disable()
-
-        if self.factored_vh.GetSelection() == 1:
+        else:
             self.wbfo_value.Enable()
             self.bs_value.Enable()
 
     def on_qv_spin(self, event):
-        self.Fv_position_value.SetMax(self.qv_value.GetValue())
-        self.Fv_position_value.SetValue(self.qv_value.GetValue() / 2)
+        self.fv_position_value.SetMax(self.qv_value.GetValue())
+        self.fv_position_value.SetValue(self.qv_value.GetValue() / 2)
 
     def on_qh_spin(self, event):
-        self.Fh_position_value.SetMax(self.qh_value.GetValue())
-        self.Fh_position_value.SetValue(self.Fh_value_default)
+        self.fh_position_value.SetMax(self.qh_value.GetValue())
+        self.fh_position_value.SetValue(self.fh_value_default)
 
     def on_qm_spin(self, event):
-        self.Fm_position_value.SetMax(self.qm_value.GetValue())
-        self.Fm_position_value.SetValue(self.Fm_value_default)
+        self.fm_position_value.SetMax(self.qm_value.GetValue())
+        self.fm_position_value.SetValue(self.fm_value_default)
 
     def import_reacts(self, event):
 
@@ -673,8 +653,7 @@ class VHMEnvelope(Frame):
                     self.verticals, self.horizontals, self.moments, s=5, linewidth="0"
                 )
                 self.canvas.draw()
-
-            elif self.unit.GetSelection() == 1:
+            else:
                 self.ax1.scatter(
                     self.norm_horizontals, self.norm_verticals, s=5, edgecolor="none"
                 )
@@ -696,7 +675,6 @@ class VHMEnvelope(Frame):
             self.add_graph_labels()
 
     def add_graph_labels(self):
-        factor = 1.4
         self.ax1.grid(True)
         self.ax2.grid(True)
         self.ax3.grid(True)
@@ -721,8 +699,7 @@ class VHMEnvelope(Frame):
             self.ax4.set_zlabel(
                 r"Moment Reaction, $\mathregular{F_M}$ (tonnes)", fontsize=self.fontSize
             )
-
-        elif self.unit.GetSelection() == 1:
+        else:
             self.ax1.set_xlabel(r"$\mathregular{F_H/Q_H}$", fontsize=self.fontSize)
             self.ax2.set_xlabel(r"$\mathregular{F_H/Q_H}$", fontsize=self.fontSize)
             self.ax3.set_xlabel(r"$\mathregular{F_V/Q_V}$", fontsize=self.fontSize)
@@ -788,24 +765,22 @@ class VHMEnvelope(Frame):
         bm_b = float(self.diameter_value.GetValue())
         a = float(self.a_value.GetValue())
         alpha = float(self.alpha_value.GetValue())
-        alpha_flag = self.alpha_box.GetSelection()
-        fv_position = float(self.Fv_position_value.GetValue())
-        fh_position = float(self.Fh_position_value.GetValue())
-        fm_position = float(self.Fm_position_value.GetValue())
+        alpha_flag = self.alpha.GetSelection()
+        fv_position = float(self.fv_position_value.GetValue())
+        fh_position = float(self.fh_position_value.GetValue())
+        fm_position = float(self.fm_position_value.GetValue())
         wbfo = float(self.wbfo_value.GetValue())
         bs = float(self.bs_value.GetValue())
 
         if self.foundation.GetSelection() == 0:
             soil_flag = "Sand"
-
-        elif self.foundation.GetSelection() == 1:
+        else:
             soil_flag = "Clay"
-            suction_flag = self.suction_box.GetSelection()
+            suction_flag = self.suction.GetSelection()
 
         if self.unit.GetSelection() == 0:
             graph_flag = "Dimensioned"
-
-        elif self.unit.GetSelection() == 1:
+        else:
             graph_flag = "Dimensionless"
 
         startv = 0.0
