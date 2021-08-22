@@ -20,7 +20,6 @@ from wx import (
     RadioBox,
     ALIGN_CENTRE_VERTICAL,
     ALIGN_LEFT,
-    ALIGN_RIGHT,
     DEFAULT_FRAME_STYLE,
     EVT_BUTTON,
     EVT_RADIOBOX,
@@ -255,32 +254,32 @@ class VHMEnvelope(Frame):
         sizer_two_sub3.Add(self.Fm_position_value, flag=ALIGN_CENTRE_VERTICAL)
 
         sizer_two_sub4 = BoxSizer(HORIZONTAL)
-        sizer_two_sub4.Add(self.factored_vh, flag=ALIGN_CENTRE_VERTICAL)  # | ALIGN_RIGHT)
+        sizer_two_sub4.Add(self.factored_vh, flag=ALIGN_CENTRE_VERTICAL)
 
         sizer_two_sub5 = BoxSizer(HORIZONTAL)
-        sizer_two_sub5.Add(self.wbfo_text, flag=ALIGN_CENTRE_VERTICAL)  # | ALIGN_RIGHT)
+        sizer_two_sub5.Add(self.wbfo_text, flag=ALIGN_CENTRE_VERTICAL)
         sizer_two_sub5.Add(self.wbfo_value, flag=ALIGN_CENTRE_VERTICAL)
 
         sizer_two_sub6 = BoxSizer(HORIZONTAL)
-        sizer_two_sub6.Add(self.bs_text, flag=ALIGN_CENTRE_VERTICAL)  # | ALIGN_RIGHT)
+        sizer_two_sub6.Add(self.bs_text, flag=ALIGN_CENTRE_VERTICAL)
         sizer_two_sub6.Add(self.bs_value, flag=ALIGN_CENTRE_VERTICAL)
 
         sizer_two = BoxSizer(HORIZONTAL)
         sizer_two.Add(sizer_two_sub1)
         sizer_two.Add(sizer_two_sub2)
         sizer_two.Add(sizer_two_sub3)
-        sizer_two.Add(sizer_two_sub4, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        sizer_two.Add(sizer_two_sub5, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        sizer_two.Add(sizer_two_sub6, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
+        sizer_two.Add(sizer_two_sub4, flag=ALIGN_CENTRE_VERTICAL)
+        sizer_two.Add(sizer_two_sub5, flag=ALIGN_CENTRE_VERTICAL)
+        sizer_two.Add(sizer_two_sub6, flag=ALIGN_CENTRE_VERTICAL)
 
         actions = BoxSizer(HORIZONTAL)
-        actions.Add(self.draw_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.clear_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.import_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.clear_react_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.save_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.clear_save_button, flag=ALIGN_CENTRE_VERTICAL)  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
-        actions.Add(self.plot_selection_button, flag=ALIGN_CENTRE_VERTICAL )  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.draw_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.clear_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.import_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.clear_react_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.save_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.clear_save_button, flag=ALIGN_CENTRE_VERTICAL)
+        actions.Add(self.plot_selection_button, flag=ALIGN_CENTRE_VERTICAL)
 
         view = BoxSizer(VERTICAL)
         view.Add(fields)
@@ -546,11 +545,11 @@ class VHMEnvelope(Frame):
         self.Fv_position_value.SetValue(self.qv_value.GetValue() / 2)
 
     def OnQhSpin(self, event):
-        self.Fh_position_value.SetMax(self.Qh_value.GetValue())
+        self.Fh_position_value.SetMax(self.qh_value.GetValue())
         self.Fh_position_value.SetValue(self.Fh_value_default)
 
     def OnQmSpin(self, event):
-        self.Fm_position_value.SetMax(self.Qm_value.GetValue())
+        self.Fm_position_value.SetMax(self.qm_value.GetValue())
         self.Fm_position_value.SetValue(self.Fm_value_default)
 
     def OnInput(self, event):
@@ -708,8 +707,6 @@ class VHMEnvelope(Frame):
         m_alpha = self.lookup_table(m_alphas, a, alpha)
 
         if soil_flag == 'Sand':
-            Fv = np.linspace(startv, Qv, granularity)
-
             self.Fv_ax1 = np.linspace(startv, Qv, granularity)
             Qmps_ax1 = Qm * (Bm_B) ** 3 * np.ones(granularity)
             Qmpv_ax1 = 0.15 * ((Qm * 0.12) / (0.075 * Qh)) * self.Fv_ax1
@@ -724,7 +721,6 @@ class VHMEnvelope(Frame):
             if Fm_position == 0:
                 self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(self.Fv_ax1, self.Fh_ax1, wbfo, bs)
 
-            Fv_ax2 = np.linspace(startv, Qv, granularity)
             self.Fh_ax2 = np.linspace(starth, Qh, granularity)
             Qmps_ax2 = Qm * (Bm_B) ** 3 * np.ones(granularity)
             Qmpv_ax2 = 0.15 * ((Qm * 0.12) / (0.075 * Qh)) * Fv_position
@@ -768,6 +764,7 @@ class VHMEnvelope(Frame):
 
             self.label = '$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{B_{max}}$/B= %.2f' % (
             Qv, Qh, Qm, Bm_B)
+
             if graph_flag == 'Dimensioned':
                 self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
                 self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
@@ -778,9 +775,6 @@ class VHMEnvelope(Frame):
                     if Fm_position == 0:
                         self.ax1.plot(self.Fh_ax1_factored, self.Fv_ax1_factored, '--', color='b')
                         self.ax1.plot(0, wbfo - bs, '.', ms=5, color='b')
-            ##                    if any(self.Fv_ax1_factored):
-            ##                        zeds = np.array(len(self.Fh_ax1_factored))
-            ##                        self.ax4.plot(self.Fv_ax1_factored, self.Fh_ax1_factored, zeds, '--', color='b')
 
             elif graph_flag == 'Dimensionless':
                 self.ax1.plot(self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label)
@@ -795,8 +789,6 @@ class VHMEnvelope(Frame):
 
         if soil_flag == 'Clay':
             if alpha_flag == 1:
-                Fv = np.linspace(startv, Qv, granularity)
-
                 self.Fv_ax1 = np.linspace(startv, Qv, granularity)
                 self.Fh_ax1 = Qh * np.sqrt(
                     4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv)) + 16 * (1 - a) * (self.Fv_ax1 / Qv) ** 2 * (
@@ -830,6 +822,7 @@ class VHMEnvelope(Frame):
 
                 self.label = '$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$<0.50; a= %.2f; Suction N/A' % (
                 Qv, Qh, Qm, a)
+
                 if graph_flag == 'Dimensioned':
                     self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
                     self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
@@ -854,8 +847,6 @@ class VHMEnvelope(Frame):
 
             if alpha_flag == 0:
                 if suction_flag == 0:
-                    Fv = np.linspace(Qv * FvQvt, Qv, granularity)
-
                     Fv_ax1_part1 = Qv * np.linspace(0.0, FvQvt, granularity)
                     Fv_ax1_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
                     self.Fv_ax1 = np.append(Fv_ax1_part1, Fv_ax1_part2)
@@ -919,6 +910,7 @@ class VHMEnvelope(Frame):
 
                     self.label = '$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$= %.2f; a= %.2f; Suction' % (
                     Qv, Qh, Qm, alpha, a)
+
                     if graph_flag == 'Dimensioned':
                         self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
                         self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
@@ -942,9 +934,6 @@ class VHMEnvelope(Frame):
                                 self.ax1.plot(0, (wbfo - bs) / Qv, '.', ms=5, color='b')
 
                 if suction_flag == 1:
-
-                    Fv = np.linspace(Qv * FvQvt, Qv, granularity)
-
                     Fv_ax1_part1 = np.linspace(1, Qv * FvQvt, granularity)
                     Fv_ax1_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
                     self.Fv_ax1 = np.append(Fv_ax1_part1, Fv_ax1_part2)
