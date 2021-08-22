@@ -46,7 +46,7 @@ np.seterr(invalid='ignore', divide='ignore')
 class VHMEnvelope(Frame):
 
     def __init__(self, parent):
-        Frame.__init__(self, parent, -1, 'ISO V-H-M Envelope ', style=DEFAULT_FRAME_STYLE ^ RESIZE_BORDER)
+        super().__init__(parent, -1, 'ISO V-H-M Envelope ', style=DEFAULT_FRAME_STYLE ^ RESIZE_BORDER)
 
         # Frame items
 
@@ -55,15 +55,15 @@ class VHMEnvelope(Frame):
 
         # Panel items
 
-        self.Qv_text = StaticText(panel, -1, 'Qv:')
-        self.Qv_value = SpinCtrl(panel, -1, min=0, max=100000, initial=10000, size=(75, -1))
-        self.Qh_text = StaticText(panel, -1, 'Qh:')
-        self.Qh_value = SpinCtrl(panel, -1, min=0, max=100000, initial=1000, size=(75, -1))
-        self.Qm_text = StaticText(panel, -1, 'Qm:')
-        self.Qm_value = SpinCtrl(panel, -1, min=0, max=100000, initial=20000, size=(75, -1))
+        self.qv_text = StaticText(panel, -1, 'Qv:')
+        self.qv_value = SpinCtrl(panel, -1, min=0, max=100000, initial=10000, size=(75, -1))
+        self.qh_text = StaticText(panel, -1, 'Qh:')
+        self.qh_value = SpinCtrl(panel, -1, min=0, max=100000, initial=1000, size=(75, -1))
+        self.qm_text = StaticText(panel, -1, 'Qm:')
+        self.qm_value = SpinCtrl(panel, -1, min=0, max=100000, initial=20000, size=(75, -1))
 
         self.foundation = RadioBox(panel, -1, label='Foundation', choices=['Sand', 'Clay'])
-        self.data = RadioBox(panel, -1, label='Unit Type', choices=['Dimensioned', 'Dimensionless'])
+        self.unit = RadioBox(panel, -1, label='Unit', choices=['Dimensioned', 'Dimensionless'])
         self.suction_box = RadioBox(panel, -1, label='Suction', choices=['Available', 'Unavailable'])
         self.alpha_box = RadioBox(panel, -1, label='Adhesion', choices=[u'\u0251>=0.5', u'\u0251<0.5'])
 
@@ -76,7 +76,7 @@ class VHMEnvelope(Frame):
             max_val=2.0,
             increment=0.1,
             digits=2,
-            size=(75, -1),
+            size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
         self.a_text = StaticText(panel, -1, ' a ')
@@ -88,7 +88,7 @@ class VHMEnvelope(Frame):
             max_val=1.0,
             increment=0.1,
             digits=2,
-            size=(75, -1),
+            size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
         self.alpha_text = StaticText(panel, -1, u' \u0251 ')
@@ -100,11 +100,11 @@ class VHMEnvelope(Frame):
             max_val=1.0,
             increment=0.1,
             digits=2,
-            size=(75, -1),
+            size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
 
-        self.Fv_value_default = self.Qv_value.GetValue() / 2
+        self.Fv_value_default = self.qv_value.GetValue() / 2
         self.Fh_value_default = 0.0
         self.Fm_value_default = 0.0
         self.Fv_position_text = StaticText(panel, -1, 'Fv:')
@@ -113,7 +113,7 @@ class VHMEnvelope(Frame):
             -1,
             value=self.Fv_value_default,
             minValue=0,
-            maxValue=self.Qv_value.GetValue(),
+            maxValue=self.qv_value.GetValue(),
             size=(150, -1),
             style=SL_LABELS,
         )
@@ -123,7 +123,7 @@ class VHMEnvelope(Frame):
             -1,
             value=self.Fh_value_default,
             minValue=0,
-            maxValue=self.Qh_value.GetValue(),
+            maxValue=self.qh_value.GetValue(),
             size=(150, -1),
             style=SL_LABELS,
         )
@@ -133,7 +133,7 @@ class VHMEnvelope(Frame):
             -1,
             value=self.Fm_value_default,
             minValue=0,
-            maxValue=self.Qm_value.GetValue(),
+            maxValue=self.qm_value.GetValue(),
             size=(150, -1),
             style=SL_LABELS,
         )
@@ -146,9 +146,9 @@ class VHMEnvelope(Frame):
         self.clear_save_button = Button(panel, -1, 'Clear Selection')
         self.plot_selection_button = Button(panel, -1, 'Plot Selection')
 
-        self.wbfo_value = SpinCtrl(panel, -1, min=0, max=10000, initial=200, size=(75, -1))
+        self.wbfo_value = SpinCtrl(panel, -1, min=0, max=10000, initial=200, size=(150, -1))
         self.wbfo_text = StaticText(panel, -1, 'Wbfo:')
-        self.bs_value = SpinCtrl(panel, -1, min=0, max=1000, initial=20, size=(75, -1))
+        self.bs_value = SpinCtrl(panel, -1, min=0, max=1000, initial=20, size=(150, -1))
         self.bs_text = StaticText(panel, -1, 'Bs:')
         self.factored_vh = RadioBox(panel, -1, label='Factored V-H', choices=['Off', 'On'])
 
@@ -196,47 +196,49 @@ class VHMEnvelope(Frame):
 
         # Sizers
 
-        sizer_one_sub1_sub1 = BoxSizer(HORIZONTAL)
-        sizer_one_sub1_sub1.Add(self.Qv_text, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one_sub1_sub1.Add(self.Qv_value, flag=ALIGN_CENTRE_VERTICAL)
+        vertical_capacity = BoxSizer(HORIZONTAL)
+        vertical_capacity.Add(self.qv_text, flag=ALIGN_CENTRE_VERTICAL)
+        vertical_capacity.Add(self.qv_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        sizer_one_sub1_sub2 = BoxSizer(HORIZONTAL)
-        sizer_one_sub1_sub2.Add(self.Qh_text, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one_sub1_sub2.Add(self.Qh_value, flag=ALIGN_CENTRE_VERTICAL)
+        horizontal_capacity = BoxSizer(HORIZONTAL)
+        horizontal_capacity.Add(self.qh_text, flag=ALIGN_CENTRE_VERTICAL)
+        horizontal_capacity.Add(self.qh_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        sizer_one_sub1_sub3 = BoxSizer(HORIZONTAL)
-        sizer_one_sub1_sub3.Add(self.Qm_text, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one_sub1_sub3.Add(self.Qm_value, flag=ALIGN_CENTRE_VERTICAL)
+        moment_capacity = BoxSizer(HORIZONTAL)
+        moment_capacity.Add(self.qm_text, flag=ALIGN_CENTRE_VERTICAL)
+        moment_capacity.Add(self.qm_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        sizer_one_sub2_sub1 = BoxSizer(HORIZONTAL)
-        sizer_one_sub2_sub1.Add(self.diameter_text, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one_sub2_sub1.Add(self.diameter_value, flag=ALIGN_CENTRE_VERTICAL)
+        contact_diameter = BoxSizer(HORIZONTAL)
+        contact_diameter.Add(self.diameter_text, flag=ALIGN_CENTRE_VERTICAL)
+        contact_diameter.Add(self.diameter_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        sizer_one_sub2_sub2 = BoxSizer(HORIZONTAL)
-        sizer_one_sub2_sub2.Add(self.a_text, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one_sub2_sub2.Add(self.a_value, flag=ALIGN_CENTRE_VERTICAL)
+        depth_parameter = BoxSizer(HORIZONTAL)
+        depth_parameter.Add(self.a_text, flag=ALIGN_CENTRE_VERTICAL)
+        depth_parameter.Add(self.a_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        sizer_one_sub2_sub3 = BoxSizer(HORIZONTAL)
-        sizer_one_sub2_sub3.Add(self.alpha_text, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one_sub2_sub3.Add(self.alpha_value, flag=ALIGN_CENTRE_VERTICAL)
+        adhesion = BoxSizer(HORIZONTAL)
+        adhesion.Add(self.alpha_text, flag=ALIGN_CENTRE_VERTICAL)
+        adhesion.Add(self.alpha_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        sizer_one_sub1 = BoxSizer(VERTICAL)
-        sizer_one_sub1.Add(sizer_one_sub1_sub1, flag=ALIGN_RIGHT)
-        sizer_one_sub1.Add(sizer_one_sub1_sub2, flag=ALIGN_RIGHT)
-        sizer_one_sub1.Add(sizer_one_sub1_sub3, flag=ALIGN_RIGHT)
+        capacities = BoxSizer(HORIZONTAL)
+        capacities.Add(vertical_capacity)
+        capacities.Add(horizontal_capacity)
+        capacities.Add(moment_capacity)
 
-        sizer_one_sub2 = BoxSizer(VERTICAL)
-        sizer_one_sub2.Add(sizer_one_sub2_sub1, flag=ALIGN_RIGHT)
-        sizer_one_sub2.Add(sizer_one_sub2_sub2, flag=ALIGN_RIGHT)
-        sizer_one_sub2.Add(sizer_one_sub2_sub3, flag=ALIGN_RIGHT)
+        ratios = BoxSizer(HORIZONTAL)
+        ratios.Add(contact_diameter)
+        ratios.Add(depth_parameter)
+        ratios.Add(adhesion)
 
-        sizer_one = BoxSizer(HORIZONTAL)
-        sizer_one.Add(self.foundation, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one.Add(self.data, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one.Add(self.suction_box, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one.Add(self.alpha_box, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one.Add(sizer_one_sub1, flag=ALIGN_CENTRE_VERTICAL)
-        sizer_one.Add(sizer_one_sub2, flag=ALIGN_CENTRE_VERTICAL)
+        fields = BoxSizer(HORIZONTAL)
+        fields.Add(self.foundation)
+        fields.Add(self.unit)
+        fields.Add(self.suction_box)
+        fields.Add(self.alpha_box)
+
+        parameters = BoxSizer(HORIZONTAL)
+        parameters.Add(capacities, flag=ALIGN_CENTRE_VERTICAL)
+        parameters.Add(ratios, flag=ALIGN_CENTRE_VERTICAL)
 
         sizer_two_sub1 = BoxSizer(HORIZONTAL)
         sizer_two_sub1.Add(self.Fv_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
@@ -279,7 +281,8 @@ class VHMEnvelope(Frame):
         actions.Add(self.plot_selection_button, flag=ALIGN_CENTRE_VERTICAL )  # ALIGN_RIGHT | ALIGN_CENTRE_VERTICAL)
 
         view = BoxSizer(VERTICAL)
-        view.Add(sizer_one, flag=GROW)
+        view.Add(fields)
+        view.Add(parameters)
         view.Add(sizer_two, flag=EXPAND)
         view.Add(actions, flag=EXPAND)
         view.Add(self.canvas, 1, flag=LEFT | TOP | GROW)
@@ -292,9 +295,9 @@ class VHMEnvelope(Frame):
 
         self.Bind(EVT_RADIOBOX, self.OnFoundationBox, self.foundation)
 
-        self.Bind(EVT_SPINCTRL, self.OnQvSpin, self.Qv_value)
-        self.Bind(EVT_SPINCTRL, self.OnQhSpin, self.Qh_value)
-        self.Bind(EVT_SPINCTRL, self.OnQmSpin, self.Qm_value)
+        self.Bind(EVT_SPINCTRL, self.OnQvSpin, self.qv_value)
+        self.Bind(EVT_SPINCTRL, self.OnQhSpin, self.qh_value)
+        self.Bind(EVT_SPINCTRL, self.OnQmSpin, self.qm_value)
 
         self.Bind(EVT_BUTTON, self.DrawGraphs, self.draw_button)
         self.Bind(EVT_BUTTON, self.ClearGraphs, self.clear_button)
@@ -424,7 +427,7 @@ class VHMEnvelope(Frame):
             Fm_ax4 = np.asarray(self.selection_Fm_ax4[i])
             labels = self.selection_labels[i]
 
-            if self.data.GetSelection() == 0:
+            if self.unit.GetSelection() == 0:
                 self.ax1.plot(Fh_ax1, Fv_ax1, color=self.colours[i], label=labels)
                 self.ax2.plot(Fh_ax2, Fm_ax2, color=self.colours[i])
                 self.ax3.plot(Fv_ax3, Fm_ax3, color=self.colours[i])
@@ -436,7 +439,7 @@ class VHMEnvelope(Frame):
                 self.ax3.scatter(verticals, moments, color=self.colours[i], s=5, edgecolor='none')
                 self.ax4.scatter(verticals, horizontals, moments, color=self.colours[i], s=3, linewidth='0')
 
-            if self.data.GetSelection() == 1:
+            if self.unit.GetSelection() == 1:
                 self.ax1.plot(Fh_ax1 / Qh, Fv_ax1 / Qv, color=self.colours[i], label=labels)
                 self.ax2.plot(Fh_ax2 / Qh, Fm_ax2 / Qm, color=self.colours[i])
                 self.ax3.plot(Fv_ax3 / Qv, Fm_ax3 / Qm, color=self.colours[i])
@@ -577,14 +580,14 @@ class VHMEnvelope(Frame):
 
         self.NormaliseReacts()
 
-        if self.data.GetSelection() == 0:
+        if self.unit.GetSelection() == 0:
             self.ax1.scatter(self.horizontals, self.verticals, s=5, edgecolor='none')
             self.ax2.scatter(self.horizontals, self.moments, s=5, edgecolor='none')
             self.ax3.scatter(self.verticals, self.moments, s=5, edgecolor='none')
             self.ax4.scatter(self.verticals, self.horizontals, self.moments, s=5, linewidth='0')
             self.canvas.draw()
 
-        elif self.data.GetSelection() == 1:
+        elif self.unit.GetSelection() == 1:
             self.ax1.scatter(self.norm_horizontals, self.norm_verticals, s=5, edgecolor='none')
             self.ax2.scatter(self.norm_horizontals, self.norm_moments, s=5, edgecolor='none')
             self.ax3.scatter(self.norm_verticals, self.norm_moments, s=5, edgecolor='none')
@@ -605,7 +608,7 @@ class VHMEnvelope(Frame):
         self.ax3.tick_params(axis='both', which='major', labelsize=self.fontSize)
         self.ax4.tick_params(axis='both', which='major', labelsize=self.fontSize)
 
-        if self.data.GetSelection() == 0:
+        if self.unit.GetSelection() == 0:
             self.ax1.set_xlabel(r'$\mathregular{F_H}$ (tonnes)', fontsize=self.fontSize)
             self.ax2.set_xlabel(r'$\mathregular{F_H}$ (tonnes)', fontsize=self.fontSize)
             self.ax3.set_xlabel(r'$\mathregular{F_V}$ (tonnes)', fontsize=self.fontSize)
@@ -618,7 +621,7 @@ class VHMEnvelope(Frame):
 
             self.ax4.set_zlabel(r'Moment Reaction, $\mathregular{F_M}$ (tonnes)', fontsize=self.fontSize)
 
-        elif self.data.GetSelection() == 1:
+        elif self.unit.GetSelection() == 1:
             self.ax1.set_xlabel(r'$\mathregular{F_H/Q_H}$', fontsize=self.fontSize)
             self.ax2.set_xlabel(r'$\mathregular{F_H/Q_H}$', fontsize=self.fontSize)
             self.ax3.set_xlabel(r'$\mathregular{F_V/Q_V}$', fontsize=self.fontSize)
@@ -670,9 +673,9 @@ class VHMEnvelope(Frame):
                              [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]])
 
         granularity = 300
-        Qv = float(self.Qv_value.GetValue())
-        Qh = float(self.Qh_value.GetValue())
-        Qm = float(self.Qm_value.GetValue())
+        Qv = float(self.qv_value.GetValue())
+        Qh = float(self.qh_value.GetValue())
+        Qm = float(self.qm_value.GetValue())
         Bm_B = float(self.diameter_value.GetValue())
         a = float(self.a_value.GetValue())
         alpha = float(self.alpha_value.GetValue())
@@ -690,10 +693,10 @@ class VHMEnvelope(Frame):
             soil_flag = 'Clay'
             suction_flag = self.suction_box.GetSelection()
 
-        if self.data.GetSelection() == 0:
+        if self.unit.GetSelection() == 0:
             graph_flag = 'Dimensioned'
 
-        elif self.data.GetSelection() == 1:
+        elif self.unit.GetSelection() == 1:
             graph_flag = 'Dimensionless'
 
         startv = 0.0
