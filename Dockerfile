@@ -3,8 +3,9 @@ FROM python:3.8.1-buster
 ENV DISPLAY=${DISPLAY}
 
 RUN apt-get update && \
-    apt-get install -y build-essential libgtk-3-dev && \
-    pip install --no-cache-dir --disable-pip-version-check -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/debian-9 wxPython
+    apt-get install -y build-essential libgtk-3-dev libcanberra-gtk3-module && \
+    # Install the wxPython wheel for Debian.
+    pip install --no-cache-dir --disable-pip-version-check -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/debian-9 wxPython
 
 WORKDIR /opt/iso-vhm
 
