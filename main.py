@@ -45,6 +45,8 @@ np.seterr(invalid="ignore", divide="ignore")
 
 
 class VHMEnvelope(Frame):
+    gamma_rvh = 1.10
+
     def __init__(self, parent):
         super().__init__(
             parent, -1, "ISO V-H-M Envelope ", style=DEFAULT_FRAME_STYLE ^ RESIZE_BORDER
@@ -83,7 +85,7 @@ class VHMEnvelope(Frame):
             panel, -1, label="Adhesion", choices=[u"\u0251>=0.5", u"\u0251<0.5"]
         )
 
-        self.diameter_text = StaticText(panel, -1, " Bmax/B: ")
+        self.diameter_text = StaticText(panel, -1, "Bmax/B:")
         self.diameter_value = FloatSpin(
             panel,
             -1,
@@ -95,7 +97,7 @@ class VHMEnvelope(Frame):
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
-        self.a_text = StaticText(panel, -1, " a ")
+        self.a_text = StaticText(panel, -1, "a")
         self.a_value = FloatSpin(
             panel,
             -1,
@@ -107,7 +109,7 @@ class VHMEnvelope(Frame):
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
-        self.alpha_text = StaticText(panel, -1, u" \u0251 ")
+        self.alpha_text = StaticText(panel, -1, u"\u0251")
         self.alpha_value = FloatSpin(
             panel,
             -1,
@@ -321,21 +323,21 @@ class VHMEnvelope(Frame):
 
         # Events
 
-        self.Bind(EVT_RADIOBOX, self.OnFoundationBox, self.foundation)
+        self.Bind(EVT_RADIOBOX, self.on_foundation_box, self.foundation)
 
-        self.Bind(EVT_SPINCTRL, self.OnQvSpin, self.qv_value)
-        self.Bind(EVT_SPINCTRL, self.OnQhSpin, self.qh_value)
-        self.Bind(EVT_SPINCTRL, self.OnQmSpin, self.qm_value)
+        self.Bind(EVT_SPINCTRL, self.on_qv_spin, self.qv_value)
+        self.Bind(EVT_SPINCTRL, self.on_qh_spin, self.qh_value)
+        self.Bind(EVT_SPINCTRL, self.on_qm_spin, self.qm_value)
 
-        self.Bind(EVT_BUTTON, self.DrawGraphs, self.draw_button)
-        self.Bind(EVT_BUTTON, self.ClearGraphs, self.clear_button)
-        self.Bind(EVT_BUTTON, self.ImportReacts, self.import_button)
-        self.Bind(EVT_BUTTON, self.SaveSelection, self.save_button)
-        self.Bind(EVT_BUTTON, self.ClearSelection, self.clear_save_button)
-        self.Bind(EVT_BUTTON, self.PlotSelection, self.plot_selection_button)
-        self.Bind(EVT_BUTTON, self.ClearReactsWithEvent, self.clear_react_button)
+        self.Bind(EVT_BUTTON, self.draw_graphs, self.draw_button)
+        self.Bind(EVT_BUTTON, self.clear_graphs, self.clear_button)
+        self.Bind(EVT_BUTTON, self.import_reacts, self.import_button)
+        self.Bind(EVT_BUTTON, self.save_selection, self.save_button)
+        self.Bind(EVT_BUTTON, self.clear_selection, self.clear_save_button)
+        self.Bind(EVT_BUTTON, self.plot_selection, self.plot_selection_button)
+        self.Bind(EVT_BUTTON, self.clear_reacts_with_event, self.clear_react_button)
 
-        self.Bind(EVT_RADIOBOX, self.OnFactoredVHBox, self.factored_vh)
+        self.Bind(EVT_RADIOBOX, self.on_factored_vh_box, self.factored_vh)
 
         # Initial attribute statuses
 
@@ -352,11 +354,7 @@ class VHMEnvelope(Frame):
 
         # Initially executed methods
 
-        self.AddGraphLabels()
-
-        # Constants
-
-        self.gamma_rvh = 1.10
+        self.add_graph_labels()
 
     # Functions
 
@@ -402,11 +400,6 @@ class VHMEnvelope(Frame):
             return value
 
         if i != j and ii != jj:
-            lower_lower = as_lower[ii]
-            lower_upper = as_lower[jj]
-            upper_lower = as_upper[ii]
-            upper_upper = as_upper[jj]
-
             alphas_lower = (value_a - a_values[i]) * (as_upper[ii] - as_lower[ii]) / (
                 a_values[j] - a_values[i]
             ) + as_lower[ii]
@@ -418,29 +411,28 @@ class VHMEnvelope(Frame):
             ) + alphas_lower
             return value
 
-    def makeFactorisation(self, verticalValues, horizontalValues, wbfo, bs):
-
-        verts = verticalValues - (wbfo - bs)
-        vector_lengths = np.sqrt(verts ** 2 + horizontalValues ** 2)
+    def make_factorisation(self, vertical_values, horizontal_values, wbfo, bs):
+        verticals = vertical_values - (wbfo - bs)
+        vector_lengths = np.sqrt(verticals ** 2 + horizontal_values ** 2)
         factored_vector_lengths = (1 / self.gamma_rvh) * vector_lengths
 
-        tan_vector_lengths = verts / vector_lengths
-        cos_vector_lengths = horizontalValues / vector_lengths
+        tan_vector_lengths = verticals / vector_lengths
+        cos_vector_lengths = horizontal_values / vector_lengths
 
-        factoredVerticals = factored_vector_lengths * tan_vector_lengths + (wbfo - bs)
-        factoredHorizontals = factored_vector_lengths * cos_vector_lengths
-        return factoredVerticals, factoredHorizontals
+        factored_verticals = factored_vector_lengths * tan_vector_lengths + (wbfo - bs)
+        factored_horizontals = factored_vector_lengths * cos_vector_lengths
+        return factored_verticals, factored_horizontals
 
     # Methods
 
-    def ClearAxes(self):
+    def clear_axes(self):
         self.ax1.clear()
         self.ax2.clear()
         self.ax3.clear()
         self.ax4.clear()
 
-    def PlotSelection(self, event):
-        self.ClearAxes()
+    def plot_selection(self, event):
+        self.clear_axes()
 
         for i in range(len(self.selection_Fh_ax1)):
             Qv = self.selection_qv[i]
@@ -538,10 +530,10 @@ class VHMEnvelope(Frame):
             loc="upper left",
             prop={"size": self.fontSize},
         )
-        self.AddGraphLabels()
+        self.add_graph_labels()
         self.canvas.draw()
 
-    def ClearSelection(self, event):
+    def clear_selection(self, event):
         self.selection_counter = 0
         self.save_button.Enable()
         self.selection_qv = []
@@ -561,10 +553,10 @@ class VHMEnvelope(Frame):
         self.selection_Fm_ax4 = []
         self.selection_labels = []
 
-    def ClearReactsWithEvent(self, event):
-        self.ClearReacts()
+    def clear_reacts_with_event(self, event):
+        self.clear_reacts()
 
-    def SaveSelection(self, event):
+    def save_selection(self, event):
         if self.selection_counter <= 2:
             if len(self.moments) == 0:
                 self.selection_moments.append([])
@@ -594,7 +586,7 @@ class VHMEnvelope(Frame):
             if self.selection_counter > 2:
                 self.save_button.Disable()
 
-    def OnFoundationBox(self, event):
+    def on_foundation_box(self, event):
         if self.foundation.GetSelection() == 0:
             self.suction_box.Disable()
             self.alpha_box.Disable()
@@ -613,7 +605,7 @@ class VHMEnvelope(Frame):
             self.alpha_box.Enable()
             self.suction_box.Enable()
 
-    def OnFactoredVHBox(self, event):
+    def on_factored_vh_box(self, event):
         if self.factored_vh.GetSelection() == 0:
             self.wbfo_value.Disable()
             self.bs_value.Disable()
@@ -622,22 +614,19 @@ class VHMEnvelope(Frame):
             self.wbfo_value.Enable()
             self.bs_value.Enable()
 
-    def OnQvSpin(self, event):
+    def on_qv_spin(self, event):
         self.Fv_position_value.SetMax(self.qv_value.GetValue())
         self.Fv_position_value.SetValue(self.qv_value.GetValue() / 2)
 
-    def OnQhSpin(self, event):
+    def on_qh_spin(self, event):
         self.Fh_position_value.SetMax(self.qh_value.GetValue())
         self.Fh_position_value.SetValue(self.Fh_value_default)
 
-    def OnQmSpin(self, event):
+    def on_qm_spin(self, event):
         self.Fm_position_value.SetMax(self.qm_value.GetValue())
         self.Fm_position_value.SetValue(self.Fm_value_default)
 
-    def OnInput(self, event):
-        self.DrawGraphs()
-
-    def ImportReacts(self, event):
+    def import_reacts(self, event):
 
         dialog = FileDialog(
             None, "Choose a .JAR file", defaultDir=os.getcwd(), style=FD_OPEN
@@ -662,7 +651,7 @@ class VHMEnvelope(Frame):
                 [[float(i[2]), float(i[5]), float(i[8])] for i in reactions]
             ).flatten()
 
-    def NormaliseReacts(self):
+    def normalise_reacts(self):
 
         self.norm_moments = np.array(self.moments) / float(self.qm_value.GetValue())
         self.norm_horizontals = np.array(self.horizontals) / float(
@@ -670,10 +659,10 @@ class VHMEnvelope(Frame):
         )
         self.norm_verticals = np.array(self.verticals) / float(self.qv_value.GetValue())
 
-    def DrawReacts(self):
+    def draw_reacts(self):
 
         if all([self.horizontals, self.verticals, self.moments]):
-            self.NormaliseReacts()
+            self.normalise_reacts()
 
             if self.unit.GetSelection() == 0:
                 self.ax1.scatter(
@@ -705,9 +694,9 @@ class VHMEnvelope(Frame):
                 )
                 self.canvas.draw()
 
-            self.AddGraphLabels()
+            self.add_graph_labels()
 
-    def AddGraphLabels(self):
+    def add_graph_labels(self):
         factor = 1.4
         self.ax1.grid(True)
         self.ax2.grid(True)
@@ -754,7 +743,7 @@ class VHMEnvelope(Frame):
         self.ax3.set_xlim(left=0)
         self.ax3.set_ylim(bottom=0)
 
-    def ClearReacts(self):
+    def clear_reacts(self):
         self.moments = []
         self.horizontals = []
         self.verticals = []
@@ -762,14 +751,14 @@ class VHMEnvelope(Frame):
         self.norm_horizontals = []
         self.norm_verticals = []
 
-    def ClearGraphs(self, event):
-        self.ClearAxes()
-        self.ClearReacts()
-        self.AddGraphLabels()
+    def clear_graphs(self, event):
+        self.clear_axes()
+        self.clear_reacts()
+        self.add_graph_labels()
         self.canvas.draw()
 
-    def DrawGraphs(self, event):
-        self.ClearAxes()
+    def draw_graphs(self, event):
+        self.clear_axes()
 
         FvQvts = np.array(
             [
@@ -854,7 +843,7 @@ class VHMEnvelope(Frame):
             self.Fh_ax1 = np.maximum(Fh_ax1_orig, Fh_ax1_mod)
 
             if Fm_position == 0:
-                self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(
+                self.Fv_ax1_factored, self.Fh_ax1_factored = self.make_factorisation(
                     self.Fv_ax1, self.Fh_ax1, wbfo, bs
                 )
 
@@ -978,7 +967,7 @@ class VHMEnvelope(Frame):
                 )
 
                 if Fm_position == 0:
-                    self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(
+                    self.Fv_ax1_factored, self.Fh_ax1_factored = self.make_factorisation(
                         self.Fv_ax1, self.Fh_ax1, wbfo, bs
                     )
 
@@ -1078,7 +1067,7 @@ class VHMEnvelope(Frame):
                     self.Fh_ax1 = np.append(Fh_ax1_part1, Fh_ax1_part2)
 
                     if Fm_position == 0:
-                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(
+                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.make_factorisation(
                             self.Fv_ax1, self.Fh_ax1, wbfo, bs
                         )
 
@@ -1237,7 +1226,7 @@ class VHMEnvelope(Frame):
                     self.Fh_ax1 = np.append(Fh_ax1_part1, Fh_ax1_part2)
 
                     if Fm_position == 0:
-                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.makeFactorisation(
+                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.make_factorisation(
                             self.Fv_ax1, self.Fh_ax1, wbfo, bs
                         )
 
@@ -1400,8 +1389,8 @@ class VHMEnvelope(Frame):
             loc="upper left",
             prop={"size": self.fontSize},
         )
-        self.AddGraphLabels()
-        self.DrawReacts()
+        self.add_graph_labels()
+        self.draw_reacts()
         self.canvas.draw()
 
 
