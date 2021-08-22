@@ -164,10 +164,11 @@ class VHMEnvelope(Frame):
         # Fh - Horizontal Force.
         horizontal_force = BoxSizer(HORIZONTAL)
         fh_position_text = StaticText(panel, -1, "Fh:")
+        self.fh_value_default = 0
         self.fh_position_value = Slider(
             panel,
             -1,
-            value=0,
+            value=self.fh_value_default,
             minValue=0,
             maxValue=self.qh_value.GetValue(),
             size=(150, -1),
@@ -179,10 +180,11 @@ class VHMEnvelope(Frame):
         # Fm - Moment.
         moment = BoxSizer(HORIZONTAL)
         fm_position_text = StaticText(panel, -1, "Fm:")
+        self.fm_value_default = 0
         self.fm_position_value = Slider(
             panel,
             -1,
-            value=0,
+            value=self.fm_value_default,
             minValue=0,
             maxValue=self.qm_value.GetValue(),
             size=(150, -1),
