@@ -190,15 +190,15 @@ class VHMEnvelope(Frame):
         self.selection_moments = []
         self.selection_horizontals = []
         self.selection_verticals = []
-        self.selection_Fh_ax1 = []
-        self.selection_Fv_ax1 = []
-        self.selection_Fh_ax2 = []
-        self.selection_Fm_ax2 = []
-        self.selection_Fv_ax3 = []
-        self.selection_Fm_ax3 = []
-        self.selection_Fh_ax4 = []
-        self.selection_Fv_ax4 = []
-        self.selection_Fm_ax4 = []
+        self.selection_fh_ax1 = []
+        self.selection_fv_ax1 = []
+        self.selection_fh_ax2 = []
+        self.selection_fm_ax2 = []
+        self.selection_fv_ax3 = []
+        self.selection_fm_ax3 = []
+        self.selection_fh_ax4 = []
+        self.selection_fv_ax4 = []
+        self.selection_fm_ax4 = []
         self.selection_labels = []
 
         # Graph attributes
@@ -434,33 +434,33 @@ class VHMEnvelope(Frame):
     def plot_selection(self, event):
         self.clear_axes()
 
-        for i in range(len(self.selection_Fh_ax1)):
-            Qv = self.selection_qv[i]
-            Qh = self.selection_qh[i]
-            Qm = self.selection_qm[i]
+        for i in range(len(self.selection_fh_ax1)):
+            qv = self.selection_qv[i]
+            qh = self.selection_qh[i]
+            qm = self.selection_qm[i]
 
             moments = np.asarray(self.selection_moments[i])
             horizontals = np.asarray(self.selection_horizontals[i])
             verticals = np.asarray(self.selection_verticals[i])
 
-            Fh_ax1 = np.asarray(self.selection_Fh_ax1[i])
-            Fv_ax1 = np.asarray(self.selection_Fv_ax1[i])
-            Fh_ax2 = np.asarray(self.selection_Fh_ax2[i])
-            Fm_ax2 = np.asarray(self.selection_Fm_ax2[i])
-            Fv_ax3 = np.asarray(self.selection_Fv_ax3[i])
-            Fm_ax3 = np.asarray(self.selection_Fm_ax3[i])
-            Fh_ax4 = np.asarray(self.selection_Fh_ax4[i])
-            Fv_ax4 = np.asarray(self.selection_Fv_ax4[i])
-            Fm_ax4 = np.asarray(self.selection_Fm_ax4[i])
+            fh_ax1 = np.asarray(self.selection_fh_ax1[i])
+            fv_ax1 = np.asarray(self.selection_fv_ax1[i])
+            fh_ax2 = np.asarray(self.selection_fh_ax2[i])
+            fm_ax2 = np.asarray(self.selection_fm_ax2[i])
+            fv_ax3 = np.asarray(self.selection_fv_ax3[i])
+            fm_ax3 = np.asarray(self.selection_fm_ax3[i])
+            fh_ax4 = np.asarray(self.selection_fh_ax4[i])
+            fv_ax4 = np.asarray(self.selection_fv_ax4[i])
+            fm_ax4 = np.asarray(self.selection_fm_ax4[i])
             labels = self.selection_labels[i]
 
             if self.unit.GetSelection() == 0:
-                self.ax1.plot(Fh_ax1, Fv_ax1, color=self.colours[i], label=labels)
-                self.ax2.plot(Fh_ax2, Fm_ax2, color=self.colours[i])
-                self.ax3.plot(Fv_ax3, Fm_ax3, color=self.colours[i])
-                xs, ys = np.meshgrid(Fv_ax4, Fh_ax4)
+                self.ax1.plot(fh_ax1, fv_ax1, color=self.colours[i], label=labels)
+                self.ax2.plot(fh_ax2, fm_ax2, color=self.colours[i])
+                self.ax3.plot(fv_ax3, fm_ax3, color=self.colours[i])
+                xs, ys = np.meshgrid(fv_ax4, fh_ax4)
                 self.ax4.plot_surface(
-                    xs, ys, Fm_ax4, linewidth=0.1, alpha=0.3, color=self.colours[i]
+                    xs, ys, fm_ax4, linewidth=0.1, alpha=0.3, color=self.colours[i]
                 )
 
                 self.ax1.scatter(
@@ -483,40 +483,40 @@ class VHMEnvelope(Frame):
 
             if self.unit.GetSelection() == 1:
                 self.ax1.plot(
-                    Fh_ax1 / Qh, Fv_ax1 / Qv, color=self.colours[i], label=labels
+                    fh_ax1 / qh, fv_ax1 / qv, color=self.colours[i], label=labels
                 )
-                self.ax2.plot(Fh_ax2 / Qh, Fm_ax2 / Qm, color=self.colours[i])
-                self.ax3.plot(Fv_ax3 / Qv, Fm_ax3 / Qm, color=self.colours[i])
-                xs, ys = np.meshgrid(Fv_ax4 / Qv, Fh_ax4 / Qh)
+                self.ax2.plot(fh_ax2 / qh, fm_ax2 / qm, color=self.colours[i])
+                self.ax3.plot(fv_ax3 / qv, fm_ax3 / qm, color=self.colours[i])
+                xs, ys = np.meshgrid(fv_ax4 / qv, fh_ax4 / qh)
                 self.ax4.plot_surface(
-                    xs, ys, Fm_ax4 / Qm, linewidth=0.1, alpha=0.3, color=self.colours[i]
+                    xs, ys, fm_ax4 / qm, linewidth=0.1, alpha=0.3, color=self.colours[i]
                 )
 
                 self.ax1.scatter(
-                    horizontals / Qh,
-                    verticals / Qv,
+                    horizontals / qh,
+                    verticals / qv,
                     color=self.colours[i],
                     s=5,
                     edgecolor="none",
                 )
                 self.ax2.scatter(
-                    horizontals / Qh,
-                    moments / Qm,
+                    horizontals / qh,
+                    moments / qm,
                     color=self.colours[i],
                     s=5,
                     edgecolor="none",
                 )
                 self.ax3.scatter(
-                    verticals / Qv,
-                    moments / Qm,
+                    verticals / qv,
+                    moments / qm,
                     color=self.colours[i],
                     s=5,
                     edgecolor="none",
                 )
                 self.ax4.scatter(
-                    verticals / Qv,
-                    horizontals / Qh,
-                    moments / Qm,
+                    verticals / qv,
+                    horizontals / qh,
+                    moments / qm,
                     color=self.colours[i],
                     s=3,
                     linewidth="0",
@@ -542,15 +542,15 @@ class VHMEnvelope(Frame):
         self.selection_moments = []
         self.selection_horizontals = []
         self.selection_verticals = []
-        self.selection_Fh_ax1 = []
-        self.selection_Fv_ax1 = []
-        self.selection_Fh_ax2 = []
-        self.selection_Fm_ax2 = []
-        self.selection_Fv_ax3 = []
-        self.selection_Fm_ax3 = []
-        self.selection_Fh_ax4 = []
-        self.selection_Fv_ax4 = []
-        self.selection_Fm_ax4 = []
+        self.selection_fh_ax1 = []
+        self.selection_fv_ax1 = []
+        self.selection_fh_ax2 = []
+        self.selection_fm_ax2 = []
+        self.selection_fv_ax3 = []
+        self.selection_fm_ax3 = []
+        self.selection_fh_ax4 = []
+        self.selection_fv_ax4 = []
+        self.selection_fm_ax4 = []
         self.selection_labels = []
 
     def clear_reacts_with_event(self, event):
@@ -571,15 +571,15 @@ class VHMEnvelope(Frame):
             self.selection_qh.append(self.qh_value.GetValue())
             self.selection_qm.append(self.qm_value.GetValue())
 
-            self.selection_Fh_ax1.append(self.Fh_ax1)
-            self.selection_Fv_ax1.append(self.Fv_ax1)
-            self.selection_Fh_ax2.append(self.Fh_ax2)
-            self.selection_Fm_ax2.append(self.Fm_ax2)
-            self.selection_Fv_ax3.append(self.Fv_ax3)
-            self.selection_Fm_ax3.append(self.Fm_ax3)
-            self.selection_Fh_ax4.append(self.Fh_ax4)
-            self.selection_Fv_ax4.append(self.Fv_ax4)
-            self.selection_Fm_ax4.append(self.Fm_ax4)
+            self.selection_fh_ax1.append(self.fh_ax1)
+            self.selection_fv_ax1.append(self.fv_ax1)
+            self.selection_fh_ax2.append(self.fh_ax2)
+            self.selection_fm_ax2.append(self.fm_ax2)
+            self.selection_fv_ax3.append(self.fv_ax3)
+            self.selection_fm_ax3.append(self.fm_ax3)
+            self.selection_fh_ax4.append(self.fh_ax4)
+            self.selection_fv_ax4.append(self.fv_ax4)
+            self.selection_fm_ax4.append(self.fm_ax4)
             self.selection_labels.append(self.label)
 
             self.selection_counter = self.selection_counter + 1
@@ -596,8 +596,7 @@ class VHMEnvelope(Frame):
             self.alpha_value.Disable()
             self.diameter_value.SetValue(1.00)
             self.diameter_value.Enable()
-
-        if self.foundation.GetSelection() == 1:
+        else:
             self.diameter_value.SetValue(1.00)
             self.diameter_value.Disable()
             self.a_value.Enable()
@@ -760,7 +759,7 @@ class VHMEnvelope(Frame):
     def draw_graphs(self, event):
         self.clear_axes()
 
-        FvQvts = np.array(
+        fv_qvts = np.array(
             [
                 [0.354, 0.334, 0.308, 0.293, 0.276, 0.238, 0.200],
                 [0.387, 0.373, 0.354, 0.343, 0.331, 0.300, 0.265],
@@ -783,16 +782,16 @@ class VHMEnvelope(Frame):
         )
 
         granularity = 300
-        Qv = float(self.qv_value.GetValue())
-        Qh = float(self.qh_value.GetValue())
-        Qm = float(self.qm_value.GetValue())
-        Bm_B = float(self.diameter_value.GetValue())
+        qv = float(self.qv_value.GetValue())
+        qh = float(self.qh_value.GetValue())
+        qm = float(self.qm_value.GetValue())
+        bm_b = float(self.diameter_value.GetValue())
         a = float(self.a_value.GetValue())
         alpha = float(self.alpha_value.GetValue())
         alpha_flag = self.alpha_box.GetSelection()
-        Fv_position = float(self.Fv_position_value.GetValue())
-        Fh_position = float(self.Fh_position_value.GetValue())
-        Fm_position = float(self.Fm_position_value.GetValue())
+        fv_position = float(self.Fv_position_value.GetValue())
+        fh_position = float(self.Fh_position_value.GetValue())
+        fm_position = float(self.Fm_position_value.GetValue())
         wbfo = float(self.wbfo_value.GetValue())
         bs = float(self.bs_value.GetValue())
 
@@ -811,357 +810,357 @@ class VHMEnvelope(Frame):
 
         startv = 0.0
         starth = 0.0
-        FvQvt = self.lookup_table(FvQvts, a, alpha)
+        fv_qvt = self.lookup_table(fv_qvts, a, alpha)
         m_alpha = self.lookup_table(m_alphas, a, alpha)
 
         if soil_flag == "Sand":
-            self.Fv_ax1 = np.linspace(startv, Qv, granularity)
-            Qmps_ax1 = Qm * (Bm_B) ** 3 * np.ones(granularity)
-            Qmpv_ax1 = 0.15 * ((Qm * 0.12) / (0.075 * Qh)) * self.Fv_ax1
-            Fh_ax1_orig = np.nan_to_num(
-                Qh
+            self.fv_ax1 = np.linspace(startv, qv, granularity)
+            qmps_ax1 = qm * (bm_b) ** 3 * np.ones(granularity)
+            qmpv_ax1 = 0.15 * ((qm * 0.12) / (0.075 * qh)) * self.fv_ax1
+            fh_ax1_orig = np.nan_to_num(
+                qh
                 * np.sqrt(
-                    4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv))
+                    4 * a * (self.fv_ax1 / qv) * (1 - (self.fv_ax1 / qv))
                     + 16
                     * (1 - a)
-                    * (self.Fv_ax1 / Qv) ** 2
-                    * (1 - (self.Fv_ax1 / Qv)) ** 2
-                    - (Fm_position / Qm) ** 2
+                    * (self.fv_ax1 / qv) ** 2
+                    * (1 - (self.fv_ax1 / qv)) ** 2
+                    - (fm_position / qm) ** 2
                 )
             )
-            Fh_ax1_mod = np.nan_to_num(
-                Qh
+            fh_ax1_mod = np.nan_to_num(
+                qh
                 * np.sqrt(
-                    4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv))
+                    4 * a * (self.fv_ax1 / qv) * (1 - (self.fv_ax1 / qv))
                     + 16
                     * (1 - a)
-                    * (self.Fv_ax1 / Qv) ** 2
-                    * (1 - (self.Fv_ax1 / Qv)) ** 2
-                    - (Fm_position / np.minimum(Qmps_ax1, Qmpv_ax1)) ** 2
+                    * (self.fv_ax1 / qv) ** 2
+                    * (1 - (self.fv_ax1 / qv)) ** 2
+                    - (fm_position / np.minimum(qmps_ax1, qmpv_ax1)) ** 2
                 )
             )
-            self.Fh_ax1 = np.maximum(Fh_ax1_orig, Fh_ax1_mod)
+            self.fh_ax1 = np.maximum(fh_ax1_orig, fh_ax1_mod)
 
-            if Fm_position == 0:
-                self.Fv_ax1_factored, self.Fh_ax1_factored = self.make_factorisation(
-                    self.Fv_ax1, self.Fh_ax1, wbfo, bs
+            if fm_position == 0:
+                self.fv_ax1_factored, self.fh_ax1_factored = self.make_factorisation(
+                    self.fv_ax1, self.fh_ax1, wbfo, bs
                 )
 
-            self.Fh_ax2 = np.linspace(starth, Qh, granularity)
-            Qmps_ax2 = Qm * (Bm_B) ** 3 * np.ones(granularity)
-            Qmpv_ax2 = 0.15 * ((Qm * 0.12) / (0.075 * Qh)) * Fv_position
-            Fm_ax2_orig = np.nan_to_num(
-                Qm
+            self.fh_ax2 = np.linspace(starth, qh, granularity)
+            qmps_ax2 = qm * (bm_b) ** 3 * np.ones(granularity)
+            qmpv_ax2 = 0.15 * ((qm * 0.12) / (0.075 * qh)) * fv_position
+            fm_ax2_orig = np.nan_to_num(
+                qm
                 * np.sqrt(
-                    4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                    4 * a * (fv_position / qv) * (1 - (fv_position / qv))
                     + 16
                     * (1 - a)
-                    * (Fv_position / Qv) ** 2
-                    * (1 - (Fv_position / Qv)) ** 2
-                    - (self.Fh_ax2 / Qh) ** 2
+                    * (fv_position / qv) ** 2
+                    * (1 - (fv_position / qv)) ** 2
+                    - (self.fh_ax2 / qh) ** 2
                 )
             )
-            Fm_ax2_mod = np.nan_to_num(
-                np.minimum(Qmps_ax2, Qmpv_ax2)
+            fm_ax2_mod = np.nan_to_num(
+                np.minimum(qmps_ax2, qmpv_ax2)
                 * np.sqrt(
-                    4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                    4 * a * (fv_position / qv) * (1 - (fv_position / qv))
                     + 16
                     * (1 - a)
-                    * (Fv_position / Qv) ** 2
-                    * (1 - (Fv_position / Qv)) ** 2
-                    - (self.Fh_ax2 / Qh) ** 2
+                    * (fv_position / qv) ** 2
+                    * (1 - (fv_position / qv)) ** 2
+                    - (self.fh_ax2 / qh) ** 2
                 )
             )
-            self.Fm_ax2 = np.maximum(Fm_ax2_orig, Fm_ax2_mod)
+            self.fm_ax2 = np.maximum(fm_ax2_orig, fm_ax2_mod)
 
-            self.Fv_ax3 = np.linspace(startv, Qv, granularity)
-            Qmps_ax3 = Qm * (Bm_B) ** 3 * np.ones(granularity)
-            Qmpv_ax3 = 0.15 * ((Qm * 0.12) / (0.075 * Qh)) * self.Fv_ax3
-            Fm_ax3_orig = Qm * np.sqrt(
-                4 * a * (self.Fv_ax3 / Qv) * (1 - (self.Fv_ax3 / Qv))
-                + 16 * (1 - a) * (self.Fv_ax3 / Qv) ** 2 * (1 - (self.Fv_ax3 / Qv)) ** 2
-                - (Fh_position / Qh) ** 2
+            self.fv_ax3 = np.linspace(startv, qv, granularity)
+            qmps_ax3 = qm * (bm_b) ** 3 * np.ones(granularity)
+            qmpv_ax3 = 0.15 * ((qm * 0.12) / (0.075 * qh)) * self.fv_ax3
+            fm_ax3_orig = qm * np.sqrt(
+                4 * a * (self.fv_ax3 / qv) * (1 - (self.fv_ax3 / qv))
+                + 16 * (1 - a) * (self.fv_ax3 / qv) ** 2 * (1 - (self.fv_ax3 / qv)) ** 2
+                - (fh_position / qh) ** 2
             )
-            Fm_ax3_mod = np.minimum(Qmps_ax3, Qmpv_ax3) * np.sqrt(
-                4 * a * (self.Fv_ax3 / Qv) * (1 - (self.Fv_ax3 / Qv))
-                + 16 * (1 - a) * (self.Fv_ax3 / Qv) ** 2 * (1 - (self.Fv_ax3 / Qv)) ** 2
-                - (Fh_position / Qh) ** 2
+            fm_ax3_mod = np.minimum(qmps_ax3, qmpv_ax3) * np.sqrt(
+                4 * a * (self.fv_ax3 / qv) * (1 - (self.fv_ax3 / qv))
+                + 16 * (1 - a) * (self.fv_ax3 / qv) ** 2 * (1 - (self.fv_ax3 / qv)) ** 2
+                - (fh_position / qh) ** 2
             )
-            self.Fm_ax3 = np.maximum(Fm_ax3_orig, Fm_ax3_mod)
+            self.fm_ax3 = np.maximum(fm_ax3_orig, fm_ax3_mod)
 
-            self.Fv_ax4 = np.linspace(startv, Qv, granularity)
-            self.Fh_ax4 = np.linspace(starth, Qh, granularity)
-            Qmps_ax4 = Qm * (Bm_B) ** 3 * np.ones(granularity)
-            Qmpv_ax4 = 0.15 * ((Qm * 0.12) / (0.075 * Qh)) * self.Fv_ax4
-            Fm_ax4_before = []
+            self.fv_ax4 = np.linspace(startv, qv, granularity)
+            self.fh_ax4 = np.linspace(starth, qh, granularity)
+            qmps_ax4 = qm * (bm_b) ** 3 * np.ones(granularity)
+            qmpv_ax4 = 0.15 * ((qm * 0.12) / (0.075 * qh)) * self.fv_ax4
+            fm_ax4_before = []
 
             for i in range(granularity):
-                Fm_inter_orig = Qm * np.sqrt(
-                    4 * a * (self.Fv_ax4 / Qv) * (1 - self.Fv_ax4 / Qv)
+                fm_inter_orig = qm * np.sqrt(
+                    4 * a * (self.fv_ax4 / qv) * (1 - self.fv_ax4 / qv)
                     + 16
                     * (1 - a)
-                    * (self.Fv_ax4 / Qv) ** 2
-                    * (1 - self.Fv_ax4 / Qv) ** 2
-                    - (self.Fh_ax4[i] / Qh) ** 2
+                    * (self.fv_ax4 / qv) ** 2
+                    * (1 - self.fv_ax4 / qv) ** 2
+                    - (self.fh_ax4[i] / qh) ** 2
                 )
-                Fm_inter_mod = np.minimum(Qmps_ax4, Qmpv_ax4) * np.sqrt(
-                    4 * a * (self.Fv_ax4 / Qv) * (1 - self.Fv_ax4 / Qv)
+                fm_inter_mod = np.minimum(qmps_ax4, qmpv_ax4) * np.sqrt(
+                    4 * a * (self.fv_ax4 / qv) * (1 - self.fv_ax4 / qv)
                     + 16
                     * (1 - a)
-                    * (self.Fv_ax4 / Qv) ** 2
-                    * (1 - self.Fv_ax4 / Qv) ** 2
-                    - (self.Fh_ax4[i] / Qh) ** 2
+                    * (self.fv_ax4 / qv) ** 2
+                    * (1 - self.fv_ax4 / qv) ** 2
+                    - (self.fh_ax4[i] / qh) ** 2
                 )
-                Fm_inter = np.maximum(Fm_inter_orig, Fm_inter_mod)
-                Fm_ax4_before.append(Fm_inter)
+                fm_inter = np.maximum(fm_inter_orig, fm_inter_mod)
+                fm_ax4_before.append(fm_inter)
 
-            self.Fm_ax4 = np.nan_to_num(Fm_ax4_before)
-            xs, ys = np.meshgrid(self.Fv_ax4, self.Fh_ax4)
+            self.fm_ax4 = np.nan_to_num(fm_ax4_before)
+            xs, ys = np.meshgrid(self.fv_ax4, self.fh_ax4)
 
             self.label = (
                 "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{B_{max}}$/B= %.2f"
-                % (Qv, Qh, Qm, Bm_B)
+                % (qv, qh, qm, bm_b)
             )
 
             if graph_flag == "Dimensioned":
-                self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
-                self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
-                self.ax3.plot(self.Fv_ax3, self.Fm_ax3)
-                self.ax4.plot_surface(xs, ys, self.Fm_ax4, linewidth=0.1, alpha=0.3)
+                self.ax1.plot(self.fh_ax1, self.fv_ax1, label=self.label)
+                self.ax2.plot(self.fh_ax2, self.fm_ax2)
+                self.ax3.plot(self.fv_ax3, self.fm_ax3)
+                self.ax4.plot_surface(xs, ys, self.fm_ax4, linewidth=0.1, alpha=0.3)
 
                 if self.factored_vh.GetSelection() == 1:
-                    if Fm_position == 0:
+                    if fm_position == 0:
                         self.ax1.plot(
-                            self.Fh_ax1_factored, self.Fv_ax1_factored, "--", color="b"
+                            self.fh_ax1_factored, self.fv_ax1_factored, "--", color="b"
                         )
                         self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
 
             elif graph_flag == "Dimensionless":
-                self.ax1.plot(self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label)
-                self.ax2.plot(self.Fh_ax2 / Qh, self.Fm_ax2 / Qm)
-                self.ax3.plot(self.Fv_ax3 / Qv, self.Fm_ax3 / Qm)
+                self.ax1.plot(self.fh_ax1 / qh, self.fv_ax1 / qv, label=self.label)
+                self.ax2.plot(self.fh_ax2 / qh, self.fm_ax2 / qm)
+                self.ax3.plot(self.fv_ax3 / qv, self.fm_ax3 / qm)
                 self.ax4.plot_surface(
-                    xs / Qv, ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3
+                    xs / qv, ys / qh, self.fm_ax4 / qm, linewidth=0.1, alpha=0.3
                 )
 
                 if self.factored_vh.GetSelection() == 1:
-                    if Fm_position == 0:
+                    if fm_position == 0:
                         self.ax1.plot(
-                            self.Fh_ax1_factored / Qh,
-                            self.Fv_ax1_factored / Qv,
+                            self.fh_ax1_factored / qh,
+                            self.fv_ax1_factored / qv,
                             "--",
                             color="b",
                         )
-                        self.ax1.plot(0, (wbfo - bs) / Qv, ".", ms=5, color="b")
+                        self.ax1.plot(0, (wbfo - bs) / qv, ".", ms=5, color="b")
 
         if soil_flag == "Clay":
             if alpha_flag == 1:
-                self.Fv_ax1 = np.linspace(startv, Qv, granularity)
-                self.Fh_ax1 = Qh * np.sqrt(
-                    4 * a * (self.Fv_ax1 / Qv) * (1 - (self.Fv_ax1 / Qv))
+                self.fv_ax1 = np.linspace(startv, qv, granularity)
+                self.fh_ax1 = qh * np.sqrt(
+                    4 * a * (self.fv_ax1 / qv) * (1 - (self.fv_ax1 / qv))
                     + 16
                     * (1 - a)
-                    * (self.Fv_ax1 / Qv) ** 2
-                    * (1 - (self.Fv_ax1 / Qv)) ** 2
-                    - (Fm_position / Qm) ** 2
+                    * (self.fv_ax1 / qv) ** 2
+                    * (1 - (self.fv_ax1 / qv)) ** 2
+                    - (fm_position / qm) ** 2
                 )
 
-                if Fm_position == 0:
-                    self.Fv_ax1_factored, self.Fh_ax1_factored = self.make_factorisation(
-                        self.Fv_ax1, self.Fh_ax1, wbfo, bs
+                if fm_position == 0:
+                    self.fv_ax1_factored, self.fh_ax1_factored = self.make_factorisation(
+                        self.fv_ax1, self.fh_ax1, wbfo, bs
                     )
 
-                self.Fh_ax2 = np.linspace(starth, Qh, granularity)
-                self.Fm_ax2 = Qm * np.sqrt(
-                    4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                self.fh_ax2 = np.linspace(starth, qh, granularity)
+                self.fm_ax2 = qm * np.sqrt(
+                    4 * a * (fv_position / qv) * (1 - (fv_position / qv))
                     + 16
                     * (1 - a)
-                    * (Fv_position / Qv) ** 2
-                    * (1 - (Fv_position / Qv)) ** 2
-                    - (self.Fh_ax2 / Qh) ** 2
+                    * (fv_position / qv) ** 2
+                    * (1 - (fv_position / qv)) ** 2
+                    - (self.fh_ax2 / qh) ** 2
                 )
 
-                self.Fv_ax3 = np.linspace(startv, Qv, granularity)
-                self.Fm_ax3 = Qm * np.sqrt(
-                    4 * a * (self.Fv_ax3 / Qv) * (1 - (self.Fv_ax3 / Qv))
+                self.fv_ax3 = np.linspace(startv, qv, granularity)
+                self.fm_ax3 = qm * np.sqrt(
+                    4 * a * (self.fv_ax3 / qv) * (1 - (self.fv_ax3 / qv))
                     + 16
                     * (1 - a)
-                    * (self.Fv_ax3 / Qv) ** 2
-                    * (1 - (self.Fv_ax3 / Qv)) ** 2
-                    - (Fh_position / Qh) ** 2
+                    * (self.fv_ax3 / qv) ** 2
+                    * (1 - (self.fv_ax3 / qv)) ** 2
+                    - (fh_position / qh) ** 2
                 )
 
-                self.Fv_ax4 = np.linspace(startv, Qv, granularity)
-                self.Fh_ax4 = np.linspace(starth, Qh, granularity)
-                Fm_ax4_before = []
+                self.fv_ax4 = np.linspace(startv, qv, granularity)
+                self.fh_ax4 = np.linspace(starth, qh, granularity)
+                fm_ax4_before = []
 
                 for i in range(granularity):
-                    Fm_inter = Qm * np.sqrt(
-                        4 * a * (self.Fv_ax4 / Qv) * (1 - self.Fv_ax4 / Qv)
+                    fm_inter = qm * np.sqrt(
+                        4 * a * (self.fv_ax4 / qv) * (1 - self.fv_ax4 / qv)
                         + 16
                         * (1 - a)
-                        * (self.Fv_ax4 / Qv) ** 2
-                        * (1 - self.Fv_ax4 / Qv) ** 2
-                        - (self.Fh_ax4[i] / Qh) ** 2
+                        * (self.fv_ax4 / qv) ** 2
+                        * (1 - self.fv_ax4 / qv) ** 2
+                        - (self.fh_ax4[i] / qh) ** 2
                     )
-                    Fm_ax4_before.append(Fm_inter)
-                self.Fm_ax4 = np.nan_to_num(Fm_ax4_before)
-                xs, ys = np.meshgrid(self.Fv_ax4, self.Fh_ax4)
+                    fm_ax4_before.append(fm_inter)
+                self.fm_ax4 = np.nan_to_num(fm_ax4_before)
+                xs, ys = np.meshgrid(self.fv_ax4, self.fh_ax4)
 
                 self.label = (
                     "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$<0.50; a= %.2f; Suction N/A"
-                    % (Qv, Qh, Qm, a)
+                    % (qv, qh, qm, a)
                 )
 
                 if graph_flag == "Dimensioned":
-                    self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
-                    self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
-                    self.ax3.plot(self.Fv_ax3, self.Fm_ax3)
-                    self.ax4.plot_surface(xs, ys, self.Fm_ax4, linewidth=0.1, alpha=0.3)
+                    self.ax1.plot(self.fh_ax1, self.fv_ax1, label=self.label)
+                    self.ax2.plot(self.fh_ax2, self.fm_ax2)
+                    self.ax3.plot(self.fv_ax3, self.fm_ax3)
+                    self.ax4.plot_surface(xs, ys, self.fm_ax4, linewidth=0.1, alpha=0.3)
 
                     if self.factored_vh.GetSelection() == 1:
-                        if Fm_position == 0:
+                        if fm_position == 0:
                             self.ax1.plot(
-                                self.Fh_ax1_factored,
-                                self.Fv_ax1_factored,
+                                self.fh_ax1_factored,
+                                self.fv_ax1_factored,
                                 "--",
                                 color="b",
                             )
                             self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
 
                 elif graph_flag == "Dimensionless":
-                    self.ax1.plot(self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label)
-                    self.ax2.plot(self.Fh_ax2 / Qh, self.Fm_ax2 / Qm)
-                    self.ax3.plot(self.Fv_ax3 / Qv, self.Fm_ax3 / Qm)
+                    self.ax1.plot(self.fh_ax1 / qh, self.fv_ax1 / qv, label=self.label)
+                    self.ax2.plot(self.fh_ax2 / qh, self.fm_ax2 / qm)
+                    self.ax3.plot(self.fv_ax3 / qv, self.fm_ax3 / qm)
                     self.ax4.plot_surface(
-                        xs / Qv, ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3
+                        xs / qv, ys / qh, self.fm_ax4 / qm, linewidth=0.1, alpha=0.3
                     )
 
                 if self.factored_vh.GetSelection() == 1:
-                    if Fm_position == 0:
+                    if fm_position == 0:
                         self.ax1.plot(
-                            self.Fh_ax1_factored / Qh,
-                            self.Fv_ax1_factored / Qv,
+                            self.fh_ax1_factored / qh,
+                            self.fv_ax1_factored / qv,
                             "--",
                             color="b",
                         )
-                        self.ax1.plot(0, (wbfo - bs) / Qv, ".", ms=5, color="b")
+                        self.ax1.plot(0, (wbfo - bs) / qv, ".", ms=5, color="b")
 
             if alpha_flag == 0:
                 if suction_flag == 0:
-                    Fv_ax1_part1 = Qv * np.linspace(0.0, FvQvt, granularity)
-                    Fv_ax1_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
-                    self.Fv_ax1 = np.append(Fv_ax1_part1, Fv_ax1_part2)
-                    Fh_ax1_part1 = Qh * np.sqrt(
-                        (alpha + m_alpha * (Fv_ax1_part1 / Qv)) ** 2
-                        - (Fm_position / Qm) ** 2
+                    fv_ax1_part1 = qv * np.linspace(0.0, fv_qvt, granularity)
+                    fv_ax1_part2 = np.linspace(qv * fv_qvt, qv, granularity)
+                    self.fv_ax1 = np.append(fv_ax1_part1, fv_ax1_part2)
+                    fh_ax1_part1 = qh * np.sqrt(
+                        (alpha + m_alpha * (fv_ax1_part1 / qv)) ** 2
+                        - (fm_position / qm) ** 2
                     )
-                    Fh_ax1_part2 = Qh * np.sqrt(
-                        4 * a * (Fv_ax1_part2 / Qv) * (1 - (Fv_ax1_part2 / Qv))
+                    fh_ax1_part2 = qh * np.sqrt(
+                        4 * a * (fv_ax1_part2 / qv) * (1 - (fv_ax1_part2 / qv))
                         + 16
                         * (1 - a)
-                        * (Fv_ax1_part2 / Qv) ** 2
-                        * (1 - (Fv_ax1_part2 / Qv)) ** 2
-                        - (Fm_position / Qm) ** 2
+                        * (fv_ax1_part2 / qv) ** 2
+                        * (1 - (fv_ax1_part2 / qv)) ** 2
+                        - (fm_position / qm) ** 2
                     )
-                    self.Fh_ax1 = np.append(Fh_ax1_part1, Fh_ax1_part2)
+                    self.fh_ax1 = np.append(fh_ax1_part1, fh_ax1_part2)
 
-                    if Fm_position == 0:
-                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.make_factorisation(
-                            self.Fv_ax1, self.Fh_ax1, wbfo, bs
+                    if fm_position == 0:
+                        self.fv_ax1_factored, self.fh_ax1_factored = self.make_factorisation(
+                            self.fv_ax1, self.fh_ax1, wbfo, bs
                         )
 
-                    Fh_part1_lim = Qh * np.sqrt(
-                        (alpha + m_alpha * (FvQvt)) ** 2 - (0 / Qm) ** 2
+                    fh_part1_lim = qh * np.sqrt(
+                        (alpha + m_alpha * fv_qvt) ** 2 - (0 / qm) ** 2
                     )
-                    Fh_ax2_part1 = np.linspace(0.0, Fh_part1_lim, granularity)
-                    Fh_ax2_part2 = np.linspace(0.0, Qh, granularity)
-                    Fm_ax2_part1 = Qm * np.sqrt(
-                        (alpha + m_alpha * (Fv_position / Qv)) ** 2
-                        - (Fh_ax2_part1 / Qh) ** 2
+                    fh_ax2_part1 = np.linspace(0.0, fh_part1_lim, granularity)
+                    fh_ax2_part2 = np.linspace(0.0, qh, granularity)
+                    fm_ax2_part1 = qm * np.sqrt(
+                        (alpha + m_alpha * (fv_position / qv)) ** 2
+                        - (fh_ax2_part1 / qh) ** 2
                     )
-                    Fm_ax2_part2 = Qm * np.sqrt(
-                        4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                    fm_ax2_part2 = qm * np.sqrt(
+                        4 * a * (fv_position / qv) * (1 - (fv_position / qv))
                         + 16
                         * (1 - a)
-                        * (Fv_position / Qv) ** 2
-                        * (1 - (Fv_position / Qv)) ** 2
-                        - (Fh_ax2_part2 / Qh) ** 2
+                        * (fv_position / qv) ** 2
+                        * (1 - (fv_position / qv)) ** 2
+                        - (fh_ax2_part2 / qh) ** 2
                     )
 
-                    if Fv_position <= Qv * FvQvt:
-                        self.Fh_ax2 = Fh_ax2_part1
-                        self.Fm_ax2 = Fm_ax2_part1
-                    elif Fv_position > Qv * FvQvt:
-                        self.Fh_ax2 = Fh_ax2_part2
-                        self.Fm_ax2 = Fm_ax2_part2
+                    if fv_position <= qv * fv_qvt:
+                        self.fh_ax2 = fh_ax2_part1
+                        self.fm_ax2 = fm_ax2_part1
+                    elif fv_position > qv * fv_qvt:
+                        self.fh_ax2 = fh_ax2_part2
+                        self.fm_ax2 = fm_ax2_part2
 
-                    Fv_ax3_part1 = Qv * np.linspace(0.0, FvQvt, granularity)
-                    Fv_ax3_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
-                    self.Fv_ax3 = np.append(Fv_ax3_part1, Fv_ax3_part2)
-                    Fm_ax3_part1 = Qm * np.sqrt(
-                        (alpha + m_alpha * (Fv_ax3_part1 / Qv)) ** 2
-                        - (Fh_position / Qh) ** 2
+                    fv_ax3_part1 = qv * np.linspace(0.0, fv_qvt, granularity)
+                    fv_ax3_part2 = np.linspace(qv * fv_qvt, qv, granularity)
+                    self.fv_ax3 = np.append(fv_ax3_part1, fv_ax3_part2)
+                    fm_ax3_part1 = qm * np.sqrt(
+                        (alpha + m_alpha * (fv_ax3_part1 / qv)) ** 2
+                        - (fh_position / qh) ** 2
                     )
-                    Fm_ax3_part2 = Qm * np.sqrt(
-                        4 * a * (Fv_ax3_part2 / Qv) * (1 - (Fv_ax3_part2 / Qv))
+                    fm_ax3_part2 = qm * np.sqrt(
+                        4 * a * (fv_ax3_part2 / qv) * (1 - (fv_ax3_part2 / qv))
                         + 16
                         * (1 - a)
-                        * (Fv_ax3_part2 / Qv) ** 2
-                        * (1 - (Fv_ax3_part2 / Qv)) ** 2
-                        - (Fh_position / Qh) ** 2
+                        * (fv_ax3_part2 / qv) ** 2
+                        * (1 - (fv_ax3_part2 / qv)) ** 2
+                        - (fh_position / qh) ** 2
                     )
-                    self.Fm_ax3 = np.append(Fm_ax3_part1, Fm_ax3_part2)
+                    self.fm_ax3 = np.append(fm_ax3_part1, fm_ax3_part2)
 
-                    Fv_ax4_part1 = np.linspace(0.0, Qv * FvQvt, granularity // 2)
-                    self.Fh_ax4 = np.linspace(0.0, Qh, granularity)
-                    Fm_ax4_part1 = []
+                    fv_ax4_part1 = np.linspace(0.0, qv * fv_qvt, granularity // 2)
+                    self.fh_ax4 = np.linspace(0.0, qh, granularity)
+                    fm_ax4_part1 = []
 
                     for i in range(granularity):
-                        Fm_ax4_part1_inter = Qm * np.sqrt(
-                            (alpha + m_alpha * (Fv_ax4_part1 / Qv)) ** 2
-                            - (self.Fh_ax4[i] / Qh) ** 2
+                        fm_ax4_part1_inter = qm * np.sqrt(
+                            (alpha + m_alpha * (fv_ax4_part1 / qv)) ** 2
+                            - (self.fh_ax4[i] / qh) ** 2
                         )
-                        Fm_ax4_part1.append(Fm_ax4_part1_inter)
-                    Fm_ax4_part1_nan = np.nan_to_num(Fm_ax4_part1)
+                        fm_ax4_part1.append(fm_ax4_part1_inter)
+                    fm_ax4_part1_nan = np.nan_to_num(fm_ax4_part1)
 
-                    Fv_ax4_part2 = np.linspace(Qv * FvQvt, Qv, granularity // 2)
-                    Fm_ax4_part2 = []
+                    fv_ax4_part2 = np.linspace(qv * fv_qvt, qv, granularity // 2)
+                    fm_ax4_part2 = []
 
                     for i in range(granularity):
-                        Fm_ax4_part2_inter = Qm * np.sqrt(
-                            4 * a * (Fv_ax4_part2 / Qv) * (1 - Fv_ax4_part2 / Qv)
+                        fm_ax4_part2_inter = qm * np.sqrt(
+                            4 * a * (fv_ax4_part2 / qv) * (1 - fv_ax4_part2 / qv)
                             + 16
                             * (1 - a)
-                            * (Fv_ax4_part2 / Qv) ** 2
-                            * (1 - Fv_ax4_part2 / Qv) ** 2
-                            - (self.Fh_ax4[i] / Qh) ** 2
+                            * (fv_ax4_part2 / qv) ** 2
+                            * (1 - fv_ax4_part2 / qv) ** 2
+                            - (self.fh_ax4[i] / qh) ** 2
                         )
-                        Fm_ax4_part2.append(Fm_ax4_part2_inter)
-                    Fm_ax4_part2_nan = np.nan_to_num(Fm_ax4_part2)
+                        fm_ax4_part2.append(fm_ax4_part2_inter)
+                    fm_ax4_part2_nan = np.nan_to_num(fm_ax4_part2)
 
-                    self.Fv_ax4 = np.append(Fv_ax4_part1, Fv_ax4_part2)
-                    self.Fm_ax4 = np.append(Fm_ax4_part1_nan, Fm_ax4_part2_nan, axis=1)
-                    Xs, Ys = np.meshgrid(self.Fv_ax4, self.Fh_ax4)
+                    self.fv_ax4 = np.append(fv_ax4_part1, fv_ax4_part2)
+                    self.fm_ax4 = np.append(fm_ax4_part1_nan, fm_ax4_part2_nan, axis=1)
+                    Xs, Ys = np.meshgrid(self.fv_ax4, self.fh_ax4)
 
                     self.label = (
                         "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$= %.2f; a= %.2f; Suction"
-                        % (Qv, Qh, Qm, alpha, a)
+                        % (qv, qh, qm, alpha, a)
                     )
 
                     if graph_flag == "Dimensioned":
-                        self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
-                        self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
-                        self.ax3.plot(self.Fv_ax3, self.Fm_ax3)
+                        self.ax1.plot(self.fh_ax1, self.fv_ax1, label=self.label)
+                        self.ax2.plot(self.fh_ax2, self.fm_ax2)
+                        self.ax3.plot(self.fv_ax3, self.fm_ax3)
                         self.ax4.plot_surface(
-                            Xs, Ys, self.Fm_ax4, linewidth=0.1, alpha=0.3
+                            Xs, Ys, self.fm_ax4, linewidth=0.1, alpha=0.3
                         )
 
                         if self.factored_vh.GetSelection() == 1:
-                            if Fm_position == 0:
+                            if fm_position == 0:
                                 self.ax1.plot(
-                                    self.Fh_ax1_factored,
-                                    self.Fv_ax1_factored,
+                                    self.fh_ax1_factored,
+                                    self.fv_ax1_factored,
                                     "--",
                                     color="b",
                                 )
@@ -1169,193 +1168,193 @@ class VHMEnvelope(Frame):
 
                     elif graph_flag == "Dimensionless":
                         self.ax1.plot(
-                            self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label
+                            self.fh_ax1 / qh, self.fv_ax1 / qv, label=self.label
                         )
-                        self.ax2.plot(self.Fh_ax2 / Qh, self.Fm_ax2 / Qm)
-                        self.ax3.plot(self.Fv_ax3 / Qv, self.Fm_ax3 / Qm)
+                        self.ax2.plot(self.fh_ax2 / qh, self.fm_ax2 / qm)
+                        self.ax3.plot(self.fv_ax3 / qv, self.fm_ax3 / qm)
                         self.ax4.plot_surface(
-                            Xs / Qv, Ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3
+                            Xs / qv, Ys / qh, self.fm_ax4 / qm, linewidth=0.1, alpha=0.3
                         )
 
                         if self.factored_vh.GetSelection() == 1:
-                            if Fm_position == 0:
+                            if fm_position == 0:
                                 self.ax1.plot(
-                                    self.Fh_ax1_factored / Qh,
-                                    self.Fv_ax1_factored / Qv,
+                                    self.fh_ax1_factored / qh,
+                                    self.fv_ax1_factored / qv,
                                     "--",
                                     color="b",
                                 )
-                                self.ax1.plot(0, (wbfo - bs) / Qv, ".", ms=5, color="b")
+                                self.ax1.plot(0, (wbfo - bs) / qv, ".", ms=5, color="b")
 
                 if suction_flag == 1:
-                    Fv_ax1_part1 = np.linspace(1, Qv * FvQvt, granularity)
-                    Fv_ax1_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
-                    self.Fv_ax1 = np.append(Fv_ax1_part1, Fv_ax1_part2)
-                    Fh_ax1_part1 = (
-                        Qh
-                        * (alpha + m_alpha * (Fv_ax1_part1 / Qv))
+                    fv_ax1_part1 = np.linspace(1, qv * fv_qvt, granularity)
+                    fv_ax1_part2 = np.linspace(qv * fv_qvt, qv, granularity)
+                    self.fv_ax1 = np.append(fv_ax1_part1, fv_ax1_part2)
+                    fh_ax1_part1 = (
+                        qh
+                        * (alpha + m_alpha * (fv_ax1_part1 / qv))
                         * np.sqrt(
                             1
                             - (
-                                Fm_position
+                                fm_position
                                 / (
-                                    Qm
+                                    qm
                                     * np.sqrt(
                                         16
                                         * (1 - a)
-                                        * (Fv_ax1_part1 / Qv) ** 2
-                                        * (1 - (Fv_ax1_part1 / Qv)) ** 2
+                                        * (fv_ax1_part1 / qv) ** 2
+                                        * (1 - (fv_ax1_part1 / qv)) ** 2
                                         + 4
                                         * a
-                                        * (Fv_ax1_part1 / Qv)
-                                        * (1 - (Fv_ax1_part1 / Qv))
+                                        * (fv_ax1_part1 / qv)
+                                        * (1 - (fv_ax1_part1 / qv))
                                     )
                                 )
                             )
                             ** 2
                         )
                     )
-                    Fh_ax1_part2 = Qh * np.sqrt(
-                        4 * a * (Fv_ax1_part2 / Qv) * (1 - (Fv_ax1_part2 / Qv))
+                    fh_ax1_part2 = qh * np.sqrt(
+                        4 * a * (fv_ax1_part2 / qv) * (1 - (fv_ax1_part2 / qv))
                         + 16
                         * (1 - a)
-                        * (Fv_ax1_part2 / Qv) ** 2
-                        * (1 - (Fv_ax1_part2 / Qv)) ** 2
-                        - (Fm_position / Qm) ** 2
+                        * (fv_ax1_part2 / qv) ** 2
+                        * (1 - (fv_ax1_part2 / qv)) ** 2
+                        - (fm_position / qm) ** 2
                     )
-                    self.Fh_ax1 = np.append(Fh_ax1_part1, Fh_ax1_part2)
+                    self.fh_ax1 = np.append(fh_ax1_part1, fh_ax1_part2)
 
-                    if Fm_position == 0:
-                        self.Fv_ax1_factored, self.Fh_ax1_factored = self.make_factorisation(
-                            self.Fv_ax1, self.Fh_ax1, wbfo, bs
+                    if fm_position == 0:
+                        self.fv_ax1_factored, self.fh_ax1_factored = self.make_factorisation(
+                            self.fv_ax1, self.fh_ax1, wbfo, bs
                         )
 
-                    Fh_part1_lim = Qh * np.sqrt(
-                        (alpha + m_alpha * (FvQvt)) ** 2 - (0 / Qm) ** 2
+                    fh_part1_lim = qh * np.sqrt(
+                        (alpha + m_alpha * fv_qvt) ** 2 - (0 / qm) ** 2
                     )
-                    Fh_ax2_part1 = np.linspace(0.0, Fh_part1_lim, granularity)
-                    Fh_ax2_part2 = np.linspace(0.0, Qh, granularity)
-                    Fm_ax2_part1 = (
-                        Qm
+                    fh_ax2_part1 = np.linspace(0.0, fh_part1_lim, granularity)
+                    fh_ax2_part2 = np.linspace(0.0, qh, granularity)
+                    fm_ax2_part1 = (
+                        qm
                         * np.sqrt(
                             16
                             * (1 - a)
-                            * (Fv_position / Qv) ** 2
-                            * (1 - (Fv_position / Qv)) ** 2
-                            + 4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                            * (fv_position / qv) ** 2
+                            * (1 - (fv_position / qv)) ** 2
+                            + 4 * a * (fv_position / qv) * (1 - (fv_position / qv))
                         )
                     ) * np.sqrt(
                         1
-                        - (Fh_ax2_part1 / ((alpha + m_alpha * (Fv_position / Qv)) * Qh))
+                        - (fh_ax2_part1 / ((alpha + m_alpha * (fv_position / qv)) * qh))
                         ** 2
                     )
-                    Fm_ax2_part2 = Qm * np.sqrt(
-                        4 * a * (Fv_position / Qv) * (1 - (Fv_position / Qv))
+                    fm_ax2_part2 = qm * np.sqrt(
+                        4 * a * (fv_position / qv) * (1 - (fv_position / qv))
                         + 16
                         * (1 - a)
-                        * (Fv_position / Qv) ** 2
-                        * (1 - (Fv_position / Qv)) ** 2
-                        - (Fh_ax2_part2 / Qh) ** 2
+                        * (fv_position / qv) ** 2
+                        * (1 - (fv_position / qv)) ** 2
+                        - (fh_ax2_part2 / qh) ** 2
                     )
 
-                    if Fv_position <= Qv * FvQvt:
-                        self.Fh_ax2 = Fh_ax2_part1
-                        self.Fm_ax2 = Fm_ax2_part1
-                    elif Fv_position > Qv * FvQvt:
-                        self.Fh_ax2 = Fh_ax2_part2
-                        self.Fm_ax2 = Fm_ax2_part2
+                    if fv_position <= qv * fv_qvt:
+                        self.fh_ax2 = fh_ax2_part1
+                        self.fm_ax2 = fm_ax2_part1
+                    elif fv_position > qv * fv_qvt:
+                        self.fh_ax2 = fh_ax2_part2
+                        self.fm_ax2 = fm_ax2_part2
 
-                    Fv_ax3_part1 = Qv * np.linspace(0.0, FvQvt, granularity)
-                    Fv_ax3_part2 = np.linspace(Qv * FvQvt, Qv, granularity)
-                    self.Fv_ax3 = np.append(Fv_ax3_part1, Fv_ax3_part2)
-                    Fm_ax3_part1 = (
-                        Qm
+                    fv_ax3_part1 = qv * np.linspace(0.0, fv_qvt, granularity)
+                    fv_ax3_part2 = np.linspace(qv * fv_qvt, qv, granularity)
+                    self.fv_ax3 = np.append(fv_ax3_part1, fv_ax3_part2)
+                    fm_ax3_part1 = (
+                        qm
                         * np.sqrt(
                             16
                             * (1 - a)
-                            * (Fv_ax3_part1 / Qv) ** 2
-                            * (1 - (Fv_ax3_part1 / Qv)) ** 2
-                            + 4 * a * (Fv_ax3_part1 / Qv) * (1 - (Fv_ax3_part1 / Qv))
+                            * (fv_ax3_part1 / qv) ** 2
+                            * (1 - (fv_ax3_part1 / qv)) ** 2
+                            + 4 * a * (fv_ax3_part1 / qv) * (1 - (fv_ax3_part1 / qv))
                         )
                     ) * np.sqrt(
                         1
-                        - (Fh_position / ((alpha + m_alpha * (Fv_ax3_part1 / Qv)) * Qh))
+                        - (fh_position / ((alpha + m_alpha * (fv_ax3_part1 / qv)) * qh))
                         ** 2
                     )
-                    Fm_ax3_part2 = Qm * np.sqrt(
-                        4 * a * (Fv_ax3_part2 / Qv) * (1 - (Fv_ax3_part2 / Qv))
+                    fm_ax3_part2 = qm * np.sqrt(
+                        4 * a * (fv_ax3_part2 / qv) * (1 - (fv_ax3_part2 / qv))
                         + 16
                         * (1 - a)
-                        * (Fv_ax3_part2 / Qv) ** 2
-                        * (1 - (Fv_ax3_part2 / Qv)) ** 2
-                        - (Fh_position / Qh) ** 2
+                        * (fv_ax3_part2 / qv) ** 2
+                        * (1 - (fv_ax3_part2 / qv)) ** 2
+                        - (fh_position / qh) ** 2
                     )
-                    self.Fm_ax3 = np.append(Fm_ax3_part1, Fm_ax3_part2)
+                    self.fm_ax3 = np.append(fm_ax3_part1, fm_ax3_part2)
 
-                    Fv_ax4_part1 = np.linspace(0.0, Qv * FvQvt, granularity // 2)
-                    self.Fh_ax4 = np.linspace(0.0, Qh, granularity)
-                    Fm_ax4_part1 = []
+                    fv_ax4_part1 = np.linspace(0.0, qv * fv_qvt, granularity // 2)
+                    self.fh_ax4 = np.linspace(0.0, qh, granularity)
+                    fm_ax4_part1 = []
 
                     for i in range(granularity):
-                        Fm_ax4_part1_inter = (
-                            Qm
+                        fm_ax4_part1_inter = (
+                            qm
                             * np.sqrt(
                                 16
                                 * (1 - a)
-                                * (Fv_ax4_part1 / Qv) ** 2
-                                * (1 - (Fv_ax4_part1 / Qv)) ** 2
+                                * (fv_ax4_part1 / qv) ** 2
+                                * (1 - (fv_ax4_part1 / qv)) ** 2
                                 + 4
                                 * a
-                                * (Fv_ax4_part1 / Qv)
-                                * (1 - (Fv_ax4_part1 / Qv))
+                                * (fv_ax4_part1 / qv)
+                                * (1 - (fv_ax4_part1 / qv))
                             )
                         ) * np.sqrt(
                             1
                             - (
-                                self.Fh_ax4[i]
-                                / ((alpha + m_alpha * (Fv_ax4_part1 / Qv)) * Qh)
+                                self.fh_ax4[i]
+                                / ((alpha + m_alpha * (fv_ax4_part1 / qv)) * qh)
                             )
                             ** 2
                         )
-                        Fm_ax4_part1.append(Fm_ax4_part1_inter)
-                    Fm_ax4_part1_nan = np.nan_to_num(Fm_ax4_part1)
+                        fm_ax4_part1.append(fm_ax4_part1_inter)
+                    fm_ax4_part1_nan = np.nan_to_num(fm_ax4_part1)
 
-                    Fv_ax4_part2 = np.linspace(Qv * FvQvt, Qv, granularity // 2)
-                    Fm_ax4_part2 = []
+                    fv_ax4_part2 = np.linspace(qv * fv_qvt, qv, granularity // 2)
+                    fm_ax4_part2 = []
 
                     for i in range(granularity):
-                        Fm_ax4_part2_inter = Qm * np.sqrt(
-                            4 * a * (Fv_ax4_part2 / Qv) * (1 - Fv_ax4_part2 / Qv)
+                        fm_ax4_part2_inter = qm * np.sqrt(
+                            4 * a * (fv_ax4_part2 / qv) * (1 - fv_ax4_part2 / qv)
                             + 16
                             * (1 - a)
-                            * (Fv_ax4_part2 / Qv) ** 2
-                            * (1 - Fv_ax4_part2 / Qv) ** 2
-                            - (self.Fh_ax4[i] / Qh) ** 2
+                            * (fv_ax4_part2 / qv) ** 2
+                            * (1 - fv_ax4_part2 / qv) ** 2
+                            - (self.fh_ax4[i] / qh) ** 2
                         )
-                        Fm_ax4_part2.append(Fm_ax4_part2_inter)
-                    Fm_ax4_part2_nan = np.nan_to_num(Fm_ax4_part2)
+                        fm_ax4_part2.append(fm_ax4_part2_inter)
+                    fm_ax4_part2_nan = np.nan_to_num(fm_ax4_part2)
 
-                    self.Fv_ax4 = np.append(Fv_ax4_part1, Fv_ax4_part2)
-                    self.Fm_ax4 = np.append(Fm_ax4_part1_nan, Fm_ax4_part2_nan, axis=1)
-                    Xs, Ys = np.meshgrid(self.Fv_ax4, self.Fh_ax4)
+                    self.fv_ax4 = np.append(fv_ax4_part1, fv_ax4_part2)
+                    self.fm_ax4 = np.append(fm_ax4_part1_nan, fm_ax4_part2_nan, axis=1)
+                    Xs, Ys = np.meshgrid(self.fv_ax4, self.fh_ax4)
 
                     self.label = (
                         "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$= %.2f; a= %.2f; No Suction"
-                        % (Qv, Qh, Qm, alpha, a)
+                        % (qv, qh, qm, alpha, a)
                     )
                     if graph_flag == "Dimensioned":
-                        self.ax1.plot(self.Fh_ax1, self.Fv_ax1, label=self.label)
-                        self.ax2.plot(self.Fh_ax2, self.Fm_ax2)
-                        self.ax3.plot(self.Fv_ax3, self.Fm_ax3)
+                        self.ax1.plot(self.fh_ax1, self.fv_ax1, label=self.label)
+                        self.ax2.plot(self.fh_ax2, self.fm_ax2)
+                        self.ax3.plot(self.fv_ax3, self.fm_ax3)
                         self.ax4.plot_surface(
-                            Xs, Ys, self.Fm_ax4, linewidth=0.1, alpha=0.3
+                            Xs, Ys, self.fm_ax4, linewidth=0.1, alpha=0.3
                         )
 
                         if self.factored_vh.GetSelection() == 1:
-                            if Fm_position == 0:
+                            if fm_position == 0:
                                 self.ax1.plot(
-                                    self.Fh_ax1_factored,
-                                    self.Fv_ax1_factored,
+                                    self.fh_ax1_factored,
+                                    self.fv_ax1_factored,
                                     "--",
                                     color="b",
                                 )
@@ -1363,23 +1362,23 @@ class VHMEnvelope(Frame):
 
                     elif graph_flag == "Dimensionless":
                         self.ax1.plot(
-                            self.Fh_ax1 / Qh, self.Fv_ax1 / Qv, label=self.label
+                            self.fh_ax1 / qh, self.fv_ax1 / qv, label=self.label
                         )
-                        self.ax2.plot(self.Fh_ax2 / Qh, self.Fm_ax2 / Qm)
-                        self.ax3.plot(self.Fv_ax3 / Qv, self.Fm_ax3 / Qm)
+                        self.ax2.plot(self.fh_ax2 / qh, self.fm_ax2 / qm)
+                        self.ax3.plot(self.fv_ax3 / qv, self.fm_ax3 / qm)
                         self.ax4.plot_surface(
-                            Xs / Qv, Ys / Qh, self.Fm_ax4 / Qm, linewidth=0.1, alpha=0.3
+                            Xs / qv, Ys / qh, self.fm_ax4 / qm, linewidth=0.1, alpha=0.3
                         )
 
                         if self.factored_vh.GetSelection() == 1:
-                            if Fm_position == 0:
+                            if fm_position == 0:
                                 self.ax1.plot(
-                                    self.Fh_ax1_factored / Qh,
-                                    self.Fv_ax1_factored / Qv,
+                                    self.fh_ax1_factored / qh,
+                                    self.fv_ax1_factored / qv,
                                     "--",
                                     color="b",
                                 )
-                                self.ax1.plot(0, (wbfo - bs) / Qv, ".", ms=5, color="b")
+                                self.ax1.plot(0, (wbfo - bs) / qv, ".", ms=5, color="b")
 
         self.handles, self.labels = self.ax1.get_legend_handles_labels()
         self.ax4.legend(
