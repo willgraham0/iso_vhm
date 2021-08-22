@@ -104,9 +104,9 @@ class VHMEnvelope(Frame):
             style=SL_AUTOTICKS | SL_LABELS,
         )
 
-        self.Fv_value_default = self.qv_value.GetValue() / 2
-        self.Fh_value_default = 0.0
-        self.Fm_value_default = 0.0
+        self.Fv_value_default = self.qv_value.GetValue() // 2
+        self.Fh_value_default = 0
+        self.Fm_value_default = 0
         self.Fv_position_text = StaticText(panel, -1, 'Fv:')
         self.Fv_position_value = Slider(
             panel,
@@ -188,6 +188,8 @@ class VHMEnvelope(Frame):
         self.fig = plt.figure(facecolor='white', dpi=self.dpi)
         self.canvas = FigCanvas(panel, -1, self.fig)
         self.toolbar = NavigationToolbar(self.canvas)
+        self.handles = None
+        self.labels = None
 
         self.ax1 = self.fig.add_subplot(self.gs[0, 0])
         self.ax2 = self.fig.add_subplot(self.gs[1, 0])
@@ -492,9 +494,9 @@ class VHMEnvelope(Frame):
                 self.selection_horizontals.append(self.horizontals)
                 self.selection_verticals.append(self.verticals)
 
-            self.selection_qv.append(self.Qv_value.GetValue())
-            self.selection_qh.append(self.Qh_value.GetValue())
-            self.selection_qm.append(self.Qm_value.GetValue())
+            self.selection_qv.append(self.qv_value.GetValue())
+            self.selection_qh.append(self.qh_value.GetValue())
+            self.selection_qm.append(self.qm_value.GetValue())
 
             self.selection_Fh_ax1.append(self.Fh_ax1)
             self.selection_Fv_ax1.append(self.Fv_ax1)
@@ -540,8 +542,8 @@ class VHMEnvelope(Frame):
             self.bs_value.Enable()
 
     def OnQvSpin(self, event):
-        self.Fv_position_value.SetMax(self.Qv_value.GetValue())
-        self.Fv_position_value.SetValue(self.Qv_value.GetValue() / 2)
+        self.Fv_position_value.SetMax(self.qv_value.GetValue())
+        self.Fv_position_value.SetValue(self.qv_value.GetValue() / 2)
 
     def OnQhSpin(self, event):
         self.Fh_position_value.SetMax(self.Qh_value.GetValue())
@@ -572,29 +574,30 @@ class VHMEnvelope(Frame):
 
     def NormaliseReacts(self):
 
-        self.norm_moments = np.array(self.moments) / float(self.Qm_value.GetValue())
-        self.norm_horizontals = np.array(self.horizontals) / float(self.Qh_value.GetValue())
-        self.norm_verticals = np.array(self.verticals) / float(self.Qv_value.GetValue())
+        self.norm_moments = np.array(self.moments) / float(self.qm_value.GetValue())
+        self.norm_horizontals = np.array(self.horizontals) / float(self.qh_value.GetValue())
+        self.norm_verticals = np.array(self.verticals) / float(self.qv_value.GetValue())
 
     def DrawReacts(self):
 
-        self.NormaliseReacts()
+        if all([self.horizontals, self.verticals, self.moments]):
+            self.NormaliseReacts()
 
-        if self.unit.GetSelection() == 0:
-            self.ax1.scatter(self.horizontals, self.verticals, s=5, edgecolor='none')
-            self.ax2.scatter(self.horizontals, self.moments, s=5, edgecolor='none')
-            self.ax3.scatter(self.verticals, self.moments, s=5, edgecolor='none')
-            self.ax4.scatter(self.verticals, self.horizontals, self.moments, s=5, linewidth='0')
-            self.canvas.draw()
+            if self.unit.GetSelection() == 0:
+                self.ax1.scatter(self.horizontals, self.verticals, s=5, edgecolor='none')
+                self.ax2.scatter(self.horizontals, self.moments, s=5, edgecolor='none')
+                self.ax3.scatter(self.verticals, self.moments, s=5, edgecolor='none')
+                self.ax4.scatter(self.verticals, self.horizontals, self.moments, s=5, linewidth='0')
+                self.canvas.draw()
 
-        elif self.unit.GetSelection() == 1:
-            self.ax1.scatter(self.norm_horizontals, self.norm_verticals, s=5, edgecolor='none')
-            self.ax2.scatter(self.norm_horizontals, self.norm_moments, s=5, edgecolor='none')
-            self.ax3.scatter(self.norm_verticals, self.norm_moments, s=5, edgecolor='none')
-            self.ax4.scatter(self.norm_verticals, self.norm_horizontals, self.norm_moments, s=5, linewidth='0')
-            self.canvas.draw()
+            elif self.unit.GetSelection() == 1:
+                self.ax1.scatter(self.norm_horizontals, self.norm_verticals, s=5, edgecolor='none')
+                self.ax2.scatter(self.norm_horizontals, self.norm_moments, s=5, edgecolor='none')
+                self.ax3.scatter(self.norm_verticals, self.norm_moments, s=5, edgecolor='none')
+                self.ax4.scatter(self.norm_verticals, self.norm_horizontals, self.norm_moments, s=5, linewidth='0')
+                self.canvas.draw()
 
-        self.AddGraphLabels()
+            self.AddGraphLabels()
 
     def AddGraphLabels(self):
         factor = 1.4
@@ -889,7 +892,7 @@ class VHMEnvelope(Frame):
                                     Fv_ax3_part2 / Qv) ** 2 * (1 - (Fv_ax3_part2 / Qv)) ** 2 - (Fh_position / Qh) ** 2)
                     self.Fm_ax3 = np.append(Fm_ax3_part1, Fm_ax3_part2)
 
-                    Fv_ax4_part1 = np.linspace(0.0, Qv * FvQvt, granularity / 2)
+                    Fv_ax4_part1 = np.linspace(0.0, Qv * FvQvt, granularity // 2)
                     self.Fh_ax4 = np.linspace(0.0, Qh, granularity)
                     Fm_ax4_part1 = []
 
@@ -899,7 +902,7 @@ class VHMEnvelope(Frame):
                         Fm_ax4_part1.append(Fm_ax4_part1_inter)
                     Fm_ax4_part1_nan = np.nan_to_num(Fm_ax4_part1)
 
-                    Fv_ax4_part2 = np.linspace(Qv * FvQvt, Qv, granularity / 2)
+                    Fv_ax4_part2 = np.linspace(Qv * FvQvt, Qv, granularity // 2)
                     Fm_ax4_part2 = []
 
                     for i in range(granularity):
@@ -987,7 +990,7 @@ class VHMEnvelope(Frame):
                                     Fv_ax3_part2 / Qv) ** 2 * (1 - (Fv_ax3_part2 / Qv)) ** 2 - (Fh_position / Qh) ** 2)
                     self.Fm_ax3 = np.append(Fm_ax3_part1, Fm_ax3_part2)
 
-                    Fv_ax4_part1 = np.linspace(0.0, Qv * FvQvt, granularity / 2)
+                    Fv_ax4_part1 = np.linspace(0.0, Qv * FvQvt, granularity // 2)
                     self.Fh_ax4 = np.linspace(0.0, Qh, granularity)
                     Fm_ax4_part1 = []
 
@@ -999,7 +1002,7 @@ class VHMEnvelope(Frame):
                         Fm_ax4_part1.append(Fm_ax4_part1_inter)
                     Fm_ax4_part1_nan = np.nan_to_num(Fm_ax4_part1)
 
-                    Fv_ax4_part2 = np.linspace(Qv * FvQvt, Qv, granularity / 2)
+                    Fv_ax4_part2 = np.linspace(Qv * FvQvt, Qv, granularity // 2)
                     Fm_ax4_part2 = []
 
                     for i in range(granularity):
