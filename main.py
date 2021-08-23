@@ -59,7 +59,7 @@ class VHMEnvelope(Frame):
 
         # Panel items.
 
-        # Toggle fields.
+        # Toggle fields box.
         fields = BoxSizer(HORIZONTAL)
         self.foundation = RadioBox(panel, -1, label="Foundation", choices=["Sand", "Clay"])  # Sand or Clay.
         self.unit = RadioBox(panel, -1, label="Unit", choices=["Dimensioned", "Dimensionless"])  # Units.
@@ -72,28 +72,28 @@ class VHMEnvelope(Frame):
         fields.Add(self.alpha)
         fields.Add(self.factored_vh)
 
-        # Qv - Vertical Force Capacity.
+        # Qv, Vertical Force Capacity box.
         vertical_capacity = BoxSizer(HORIZONTAL)
         qv_text = StaticText(panel, -1, "Qv:")
-        self.qv_value = SpinCtrl(panel, -1, min=0, max=100000, initial=10000, size=(75, -1))
+        self.qv_value = SpinCtrl(panel, -1, min=0, max=100000, initial=10000, size=(150, -1))
         vertical_capacity.Add(qv_text, flag=ALIGN_CENTRE_VERTICAL)
         vertical_capacity.Add(self.qv_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Qh - Horizontal Force Capacity.
+        # Qh,Horizontal Force Capacity box.
         horizontal_capacity = BoxSizer(HORIZONTAL)
         qh_text = StaticText(panel, -1, "Qh:")
-        self.qh_value = SpinCtrl(panel, -1, min=0, max=100000, initial=1000, size=(75, -1))
+        self.qh_value = SpinCtrl(panel, -1, min=0, max=100000, initial=1000, size=(150, -1))
         horizontal_capacity.Add(qh_text, flag=ALIGN_CENTRE_VERTICAL)
         horizontal_capacity.Add(self.qh_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Qm - Moment Capacity.
+        # Qm, Moment Capacity box.
         moment_capacity = BoxSizer(HORIZONTAL)
         qm_text = StaticText(panel, -1, "Qm:")
-        self.qm_value = SpinCtrl(panel, -1, min=0, max=100000, initial=20000, size=(75, -1))
+        self.qm_value = SpinCtrl(panel, -1, min=0, max=100000, initial=20000, size=(150, -1))
         moment_capacity.Add(qm_text, flag=ALIGN_CENTRE_VERTICAL)
         moment_capacity.Add(self.qm_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Contact Diameter.
+        # Contact Diameter box.
         contact_diameter = BoxSizer(HORIZONTAL)
         diameter_text = StaticText(panel, -1, "Bmax/B:")
         self.diameter_value = FloatSpin(
@@ -110,7 +110,7 @@ class VHMEnvelope(Frame):
         contact_diameter.Add(diameter_text, flag=ALIGN_CENTRE_VERTICAL)
         contact_diameter.Add(self.diameter_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Depth parameter.
+        # Depth parameter box.
         depth_parameter = BoxSizer(HORIZONTAL)
         a_text = StaticText(panel, -1, "a:")
         self.a_value = FloatSpin(
@@ -127,7 +127,7 @@ class VHMEnvelope(Frame):
         depth_parameter.Add(a_text, flag=ALIGN_CENTRE_VERTICAL)
         depth_parameter.Add(self.a_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Adhesion.
+        # Adhesion box.
         adhesion = BoxSizer(HORIZONTAL)
         alpha_text = StaticText(panel, -1, u"\u0251:")
         self.alpha_value = FloatSpin(
@@ -146,7 +146,7 @@ class VHMEnvelope(Frame):
 
         # 2-d plot slice defaults.
 
-        # Fv - Vertical Force.
+        # Fv, Vertical Force box.
         vertical_force = BoxSizer(HORIZONTAL)
         fv_position_text = StaticText(panel, -1, "Fv:")
         self.fv_position_value = Slider(
@@ -161,7 +161,7 @@ class VHMEnvelope(Frame):
         vertical_force.Add(fv_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
         vertical_force.Add(self.fv_position_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Fh - Horizontal Force.
+        # Fh, Horizontal Force box.
         horizontal_force = BoxSizer(HORIZONTAL)
         fh_position_text = StaticText(panel, -1, "Fh:")
         self.fh_value_default = 0
@@ -177,7 +177,7 @@ class VHMEnvelope(Frame):
         horizontal_force.Add(fh_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
         horizontal_force.Add(self.fh_position_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Fm - Moment.
+        # Fm, Moment box.
         moment = BoxSizer(HORIZONTAL)
         fm_position_text = StaticText(panel, -1, "Fm:")
         self.fm_value_default = 0
@@ -193,7 +193,7 @@ class VHMEnvelope(Frame):
         moment.Add(fm_position_text, flag=ALIGN_CENTRE_VERTICAL | ALIGN_LEFT)
         moment.Add(self.fm_position_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Actions.
+        # Action buttons box.
         actions = BoxSizer(HORIZONTAL)
         self.draw_button = Button(panel, -1, "Draw Plots")
         self.clear_button = Button(panel, -1, "Clear Plots and Reacts")
@@ -210,7 +210,7 @@ class VHMEnvelope(Frame):
         actions.Add(self.clear_save_button, flag=ALIGN_CENTRE_VERTICAL)
         actions.Add(self.plot_selection_button, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Wbfo.
+        # Wbfo box.
         wbfo = BoxSizer(HORIZONTAL)
         wbfo_text = StaticText(panel, -1, "Wbfo:")
         self.wbfo_value = SpinCtrl(
@@ -219,7 +219,7 @@ class VHMEnvelope(Frame):
         wbfo.Add(wbfo_text, flag=ALIGN_CENTRE_VERTICAL)
         wbfo.Add(self.wbfo_value, flag=ALIGN_CENTRE_VERTICAL)
 
-        # Diameter
+        # Diameter box.
         factored_vh = BoxSizer(HORIZONTAL)
         self.bs_value = SpinCtrl(panel, -1, min=0, max=1000, initial=20, size=(150, -1))
         self.bs_text = StaticText(panel, -1, "Bs:")
