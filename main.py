@@ -39,6 +39,7 @@ from wx import (
 )
 from wx.lib.agw.floatspin import FloatSpin
 
+from envelope import Sand
 from table import FvQvt, MAlpha
 
 
@@ -58,11 +59,11 @@ class VHMEnvelope(Frame):
 
         # Toggle fields box.
         fields = BoxSizer(HORIZONTAL)
-        self.foundation = RadioBox(panel, -1, label="Foundation", choices=["Sand", "Clay"])  # Sand or Clay.
-        self.unit = RadioBox(panel, -1, label="Unit", choices=["Dimensioned", "Dimensionless"])  # Units.
-        self.suction = RadioBox(panel, -1, label="Suction", choices=["Available", "Unavailable"])  # Suction.
-        self.alpha = RadioBox(panel, -1, label="Adhesion", choices=[u"\u0251>=0.5", u"\u0251<0.5"])  # Adhesion.
-        self.factored_vh = RadioBox(panel, -1, label="Factored V-H", choices=["Off", "On"])  # Factored VH.
+        self.foundation = RadioBox(panel, -1, label="Foundation", choices=["Sand", "Clay"])
+        self.unit = RadioBox(panel, -1, label="Unit", choices=["Dimensioned", "Dimensionless"])
+        self.suction = RadioBox(panel, -1, label="Suction", choices=["Available", "Unavailable"])
+        self.alpha = RadioBox(panel, -1, label="Adhesion", choices=[u"\u0251>=0.5", u"\u0251<0.5"])
+        self.factored_vh = RadioBox(panel, -1, label="Factored V-H", choices=["Off", "On"])
         fields.Add(self.foundation)
         fields.Add(self.unit)
         fields.Add(self.suction)
@@ -679,176 +680,78 @@ class VHMEnvelope(Frame):
         qv = float(self.qv_value.GetValue())
         qh = float(self.qh_value.GetValue())
         qm = float(self.qm_value.GetValue())
-        bm_b = float(self.diameter_value.GetValue())
-        a = float(self.a_value.GetValue())
-        alpha = float(self.alpha_value.GetValue())
-        alpha_flag = self.alpha.GetSelection()
         fv_position = float(self.fv_position_value.GetValue())
         fh_position = float(self.fh_position_value.GetValue())
         fm_position = float(self.fm_position_value.GetValue())
         wbfo = float(self.wbfo_value.GetValue())
         bs = float(self.bs_value.GetValue())
 
-        if self.foundation.GetSelection() == 0:
-            soil_flag = "Sand"
-        else:
-            soil_flag = "Clay"
-            suction_flag = self.suction.GetSelection()
+        sand = self.foundation.GetSelection() == 0
+        dimensionless = self.unit.GetSelection() != 0
 
-        if self.unit.GetSelection() == 0:
-            graph_flag = "Dimensioned"
-        else:
-            graph_flag = "Dimensionless"
+        if sand:
+            bm_b = float(self.diameter_value.GetValue())
+            envelope = Sand(qv, qh, qm, bm_b)
 
-        startv = 0.0
-        starth = 0.0
-
-        fv_qvts = FvQvt()
-        m_alphas = MAlpha()
-        fv_qvt = fv_qvts.lookup(a, alpha)
-        m_alpha = m_alphas.lookup(a, alpha)
-
-        if soil_flag == "Sand":
-            self.fv_ax1 = np.linspace(startv, qv, granularity)
-            qmps_ax1 = qm * (bm_b) ** 3 * np.ones(granularity)
-            qmpv_ax1 = 0.15 * ((qm * 0.12) / (0.075 * qh)) * self.fv_ax1
-            fh_ax1_orig = np.nan_to_num(
-                qh
-                * np.sqrt(
-                    4 * a * (self.fv_ax1 / qv) * (1 - (self.fv_ax1 / qv))
-                    + 16
-                    * (1 - a)
-                    * (self.fv_ax1 / qv) ** 2
-                    * (1 - (self.fv_ax1 / qv)) ** 2
-                    - (fm_position / qm) ** 2
-                )
-            )
-            fh_ax1_mod = np.nan_to_num(
-                qh
-                * np.sqrt(
-                    4 * a * (self.fv_ax1 / qv) * (1 - (self.fv_ax1 / qv))
-                    + 16
-                    * (1 - a)
-                    * (self.fv_ax1 / qv) ** 2
-                    * (1 - (self.fv_ax1 / qv)) ** 2
-                    - (fm_position / np.minimum(qmps_ax1, qmpv_ax1)) ** 2
-                )
-            )
-            self.fh_ax1 = np.maximum(fh_ax1_orig, fh_ax1_mod)
-
-            if fm_position == 0:
-                self.fv_ax1_factored, self.fh_ax1_factored = self.make_factorisation(
-                    self.fv_ax1, self.fh_ax1, wbfo, bs
-                )
-
-            self.fh_ax2 = np.linspace(starth, qh, granularity)
-            qmps_ax2 = qm * (bm_b) ** 3 * np.ones(granularity)
-            qmpv_ax2 = 0.15 * ((qm * 0.12) / (0.075 * qh)) * fv_position
-            fm_ax2_orig = np.nan_to_num(
-                qm
-                * np.sqrt(
-                    4 * a * (fv_position / qv) * (1 - (fv_position / qv))
-                    + 16
-                    * (1 - a)
-                    * (fv_position / qv) ** 2
-                    * (1 - (fv_position / qv)) ** 2
-                    - (self.fh_ax2 / qh) ** 2
-                )
-            )
-            fm_ax2_mod = np.nan_to_num(
-                np.minimum(qmps_ax2, qmpv_ax2)
-                * np.sqrt(
-                    4 * a * (fv_position / qv) * (1 - (fv_position / qv))
-                    + 16
-                    * (1 - a)
-                    * (fv_position / qv) ** 2
-                    * (1 - (fv_position / qv)) ** 2
-                    - (self.fh_ax2 / qh) ** 2
-                )
-            )
-            self.fm_ax2 = np.maximum(fm_ax2_orig, fm_ax2_mod)
-
-            self.fv_ax3 = np.linspace(startv, qv, granularity)
-            qmps_ax3 = qm * (bm_b) ** 3 * np.ones(granularity)
-            qmpv_ax3 = 0.15 * ((qm * 0.12) / (0.075 * qh)) * self.fv_ax3
-            fm_ax3_orig = qm * np.sqrt(
-                4 * a * (self.fv_ax3 / qv) * (1 - (self.fv_ax3 / qv))
-                + 16 * (1 - a) * (self.fv_ax3 / qv) ** 2 * (1 - (self.fv_ax3 / qv)) ** 2
-                - (fh_position / qh) ** 2
-            )
-            fm_ax3_mod = np.minimum(qmps_ax3, qmpv_ax3) * np.sqrt(
-                4 * a * (self.fv_ax3 / qv) * (1 - (self.fv_ax3 / qv))
-                + 16 * (1 - a) * (self.fv_ax3 / qv) ** 2 * (1 - (self.fv_ax3 / qv)) ** 2
-                - (fh_position / qh) ** 2
-            )
-            self.fm_ax3 = np.maximum(fm_ax3_orig, fm_ax3_mod)
-
-            self.fv_ax4 = np.linspace(startv, qv, granularity)
-            self.fh_ax4 = np.linspace(starth, qh, granularity)
-            qmps_ax4 = qm * (bm_b) ** 3 * np.ones(granularity)
-            qmpv_ax4 = 0.15 * ((qm * 0.12) / (0.075 * qh)) * self.fv_ax4
-            fm_ax4_before = []
-
-            for i in range(granularity):
-                fm_inter_orig = qm * np.sqrt(
-                    4 * a * (self.fv_ax4 / qv) * (1 - self.fv_ax4 / qv)
-                    + 16
-                    * (1 - a)
-                    * (self.fv_ax4 / qv) ** 2
-                    * (1 - self.fv_ax4 / qv) ** 2
-                    - (self.fh_ax4[i] / qh) ** 2
-                )
-                fm_inter_mod = np.minimum(qmps_ax4, qmpv_ax4) * np.sqrt(
-                    4 * a * (self.fv_ax4 / qv) * (1 - self.fv_ax4 / qv)
-                    + 16
-                    * (1 - a)
-                    * (self.fv_ax4 / qv) ** 2
-                    * (1 - self.fv_ax4 / qv) ** 2
-                    - (self.fh_ax4[i] / qh) ** 2
-                )
-                fm_inter = np.maximum(fm_inter_orig, fm_inter_mod)
-                fm_ax4_before.append(fm_inter)
-
-            self.fm_ax4 = np.nan_to_num(fm_ax4_before)
-            xs, ys = np.meshgrid(self.fv_ax4, self.fh_ax4)
-
-            self.label = (
+            label = (
                 "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{B_{max}}$/B= %.2f"
                 % (qv, qh, qm, bm_b)
             )
 
-            if graph_flag == "Dimensioned":
-                self.ax1.plot(self.fh_ax1, self.fv_ax1, label=self.label)
-                self.ax2.plot(self.fh_ax2, self.fm_ax2)
-                self.ax3.plot(self.fv_ax3, self.fm_ax3)
-                self.ax4.plot_surface(xs, ys, self.fm_ax4, linewidth=0.1, alpha=0.3)
+            fv_ax1 = np.linspace(0, qv, granularity)
+            fh_ax1 = envelope.get_fh(fv_ax1, fm_position)
+            fv_ax1_factored, fh_ax1_factored = self.make_factorisation(
+                fv_ax1, fh_ax1, wbfo, bs
+            )
+            delta = wbfo - bs
 
-                if self.factored_vh.GetSelection() == 1:
-                    if fm_position == 0:
-                        self.ax1.plot(
-                            self.fh_ax1_factored, self.fv_ax1_factored, "--", color="b"
-                        )
-                        self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
+            fh_ax2 = np.linspace(0, qh, granularity)
+            fm_ax2 = envelope.get_fm(fv_position, fh_ax2)
 
-            elif graph_flag == "Dimensionless":
-                self.ax1.plot(self.fh_ax1 / qh, self.fv_ax1 / qv, label=self.label)
-                self.ax2.plot(self.fh_ax2 / qh, self.fm_ax2 / qm)
-                self.ax3.plot(self.fv_ax3 / qv, self.fm_ax3 / qm)
-                self.ax4.plot_surface(
-                    xs / qv, ys / qh, self.fm_ax4 / qm, linewidth=0.1, alpha=0.3
-                )
+            fv_ax3 = np.linspace(0, qv, granularity)
+            fm_ax3 = envelope.get_fm(fv_ax1, fh_position)
 
-                if self.factored_vh.GetSelection() == 1:
-                    if fm_position == 0:
-                        self.ax1.plot(
-                            self.fh_ax1_factored / qh,
-                            self.fv_ax1_factored / qv,
-                            "--",
-                            color="b",
-                        )
-                        self.ax1.plot(0, (wbfo - bs) / qv, ".", ms=5, color="b")
+            fv_ax4 = np.linspace(0, qv, granularity)
+            fh_ax4 = np.linspace(0, qh, granularity)
+            fv_ax4,  fh_ax4 = np.meshgrid(fv_ax4, fh_ax4)
+            fm_ax4 = envelope.get_fm(fv_ax4, fh_ax4)
 
-        if soil_flag == "Clay":
+            if dimensionless:
+                fh_ax1 = fh_ax1 / qh
+                fv_ax1 = fv_ax1 / qv
+                fv_ax1_factored = fv_ax1_factored / qv
+                fh_ax1_factored = fh_ax1_factored / qh
+                delta = delta / qv
+                fh_ax2 = fh_ax2 / qh
+                fm_ax2 = fm_ax2 / qm
+                fv_ax3 = fv_ax3 / qv
+                fm_ax3 = fm_ax3 / qm
+                fv_ax4 = fv_ax4 / qv
+                fh_ax4 = fh_ax4 / qh
+                fm_ax4 = fm_ax4 / qm
+
+            self.ax1.plot(fh_ax1, fv_ax1, label=label)
+            self.ax2.plot(fh_ax2, fm_ax2)
+            self.ax3.plot(fv_ax3, fm_ax3)
+            self.ax4.plot_surface(fv_ax4, fh_ax4, fm_ax4, linewidth=0.1, alpha=0.3)
+
+            if self.factored_vh.GetSelection() == 1 and fm_position == 0:
+                self.ax1.plot(fh_ax1_factored, fv_ax1_factored, "--", color="b")
+                self.ax1.plot(0, delta, ".", ms=5, color="b")
+
+        else:
+            suction_flag = self.suction.GetSelection()
+            a = float(self.a_value.GetValue())
+            alpha = float(self.alpha_value.GetValue())
+            alpha_flag = self.alpha.GetSelection()
+            fv_qvts = FvQvt()
+            m_alphas = MAlpha()
+            fv_qvt = fv_qvts.lookup(a, alpha)
+            m_alpha = m_alphas.lookup(a, alpha)
+
+            startv = 0.0
+            starth = 0.0
+
             if alpha_flag == 1:
                 self.fv_ax1 = np.linspace(startv, qv, granularity)
                 self.fh_ax1 = qh * np.sqrt(
@@ -907,7 +810,7 @@ class VHMEnvelope(Frame):
                     % (qv, qh, qm, a)
                 )
 
-                if graph_flag == "Dimensioned":
+                if not dimensionless:
                     self.ax1.plot(self.fh_ax1, self.fv_ax1, label=self.label)
                     self.ax2.plot(self.fh_ax2, self.fm_ax2)
                     self.ax3.plot(self.fv_ax3, self.fm_ax3)
@@ -923,7 +826,7 @@ class VHMEnvelope(Frame):
                             )
                             self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
 
-                elif graph_flag == "Dimensionless":
+                elif dimensionless:
                     self.ax1.plot(self.fh_ax1 / qh, self.fv_ax1 / qv, label=self.label)
                     self.ax2.plot(self.fh_ax2 / qh, self.fm_ax2 / qm)
                     self.ax3.plot(self.fv_ax3 / qv, self.fm_ax3 / qm)
@@ -1043,7 +946,7 @@ class VHMEnvelope(Frame):
                         % (qv, qh, qm, alpha, a)
                     )
 
-                    if graph_flag == "Dimensioned":
+                    if not dimensionless:
                         self.ax1.plot(self.fh_ax1, self.fv_ax1, label=self.label)
                         self.ax2.plot(self.fh_ax2, self.fm_ax2)
                         self.ax3.plot(self.fv_ax3, self.fm_ax3)
@@ -1061,7 +964,7 @@ class VHMEnvelope(Frame):
                                 )
                                 self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
 
-                    elif graph_flag == "Dimensionless":
+                    elif dimensionless:
                         self.ax1.plot(
                             self.fh_ax1 / qh, self.fv_ax1 / qv, label=self.label
                         )
@@ -1237,7 +1140,7 @@ class VHMEnvelope(Frame):
                         "$\mathregular{Q_V}$=%dt; $\mathregular{Q_H}$=%dt; $\mathregular{Q_M}$=%dt; $\mathregular{\\alpha}$= %.2f; a= %.2f; No Suction"
                         % (qv, qh, qm, alpha, a)
                     )
-                    if graph_flag == "Dimensioned":
+                    if not dimensionless:
                         self.ax1.plot(self.fh_ax1, self.fv_ax1, label=self.label)
                         self.ax2.plot(self.fh_ax2, self.fm_ax2)
                         self.ax3.plot(self.fv_ax3, self.fm_ax3)
@@ -1255,7 +1158,7 @@ class VHMEnvelope(Frame):
                                 )
                                 self.ax1.plot(0, wbfo - bs, ".", ms=5, color="b")
 
-                    elif graph_flag == "Dimensionless":
+                    elif dimensionless:
                         self.ax1.plot(
                             self.fh_ax1 / qh, self.fv_ax1 / qv, label=self.label
                         )
