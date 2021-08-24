@@ -1,4 +1,3 @@
-import bisect
 import os
 import re
 
@@ -40,6 +39,8 @@ from wx import (
 )
 from wx.lib.agw.floatspin import FloatSpin
 
+from table import FvQvt, MAlpha
+
 
 np.seterr(invalid="ignore", divide="ignore")
 
@@ -52,12 +53,8 @@ class VHMEnvelope(Frame):
             parent, -1, "ISO V-H-M Envelope ", style=DEFAULT_FRAME_STYLE ^ RESIZE_BORDER
         )
 
-        # Frame items.
-
         panel = Panel(self)
         panel.SetBackgroundColour("white")
-
-        # Panel items.
 
         # Toggle fields box.
         fields = BoxSizer(HORIZONTAL)
@@ -103,7 +100,7 @@ class VHMEnvelope(Frame):
             min_val=1.0,
             max_val=2.0,
             increment=0.1,
-            digits=2,
+            digits=1,
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
@@ -119,8 +116,8 @@ class VHMEnvelope(Frame):
             value=0.0,
             min_val=0.0,
             max_val=1.0,
-            increment=0.1,
-            digits=2,
+            increment=0.2,
+            digits=1,
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
@@ -137,14 +134,12 @@ class VHMEnvelope(Frame):
             min_val=0.5,
             max_val=1.0,
             increment=0.1,
-            digits=2,
+            digits=1,
             size=(150, -1),
             style=SL_AUTOTICKS | SL_LABELS,
         )
         adhesion.Add(alpha_text, flag=ALIGN_CENTRE_VERTICAL)
         adhesion.Add(self.alpha_value, flag=ALIGN_CENTRE_VERTICAL)
-
-        # 2-d plot slice defaults.
 
         # Fv, Vertical Force box.
         vertical_force = BoxSizer(HORIZONTAL)
@@ -235,7 +230,6 @@ class VHMEnvelope(Frame):
         self.norm_moments = []
         self.norm_horizontals = []
         self.norm_verticals = []
-
         self.selection_qv = []
         self.selection_qh = []
         self.selection_qm = []
@@ -307,11 +301,9 @@ class VHMEnvelope(Frame):
         # Events
 
         self.Bind(EVT_RADIOBOX, self.on_foundation_box, self.foundation)
-
         self.Bind(EVT_SPINCTRL, self.on_qv_spin, self.qv_value)
         self.Bind(EVT_SPINCTRL, self.on_qh_spin, self.qh_value)
         self.Bind(EVT_SPINCTRL, self.on_qm_spin, self.qm_value)
-
         self.Bind(EVT_BUTTON, self.draw_graphs, self.draw_button)
         self.Bind(EVT_BUTTON, self.clear_graphs, self.clear_button)
         self.Bind(EVT_BUTTON, self.import_reacts, self.import_button)
@@ -319,7 +311,6 @@ class VHMEnvelope(Frame):
         self.Bind(EVT_BUTTON, self.clear_selection, self.clear_save_button)
         self.Bind(EVT_BUTTON, self.plot_selection, self.plot_selection_button)
         self.Bind(EVT_BUTTON, self.clear_reacts_with_event, self.clear_reacts_button)
-
         self.Bind(EVT_RADIOBOX, self.on_factored_vh_box, self.factored_vh)
 
         # Initial attribute statuses
@@ -331,7 +322,6 @@ class VHMEnvelope(Frame):
         self.suction.Disable()
         self.selection_counter = 0
         self.first_plot_flag = 0
-
         self.wbfo_value.Disable()
         self.bs_value.Disable()
 
@@ -340,59 +330,6 @@ class VHMEnvelope(Frame):
         self.add_graph_labels()
 
     # Functions
-
-    def get_index(self, list_data, x, flag):
-        i = bisect.bisect_left(list_data, x, lo=0, hi=len(list_data))
-        if x == list_data[i]:
-            return i
-        elif x != list_data[i] and flag == "left":
-            return i - 1
-        elif x != list_data[i] and flag == "right":
-            return i
-
-    def lookup_table(self, table, value_a, value_alpha):
-        a_values = [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]
-        alpha_values = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-
-        i = self.get_index(a_values, value_a, "left")
-        as_lower = table[:, i]
-        j = self.get_index(a_values, value_a, "right")
-        as_upper = table[:, j]
-
-        ii = self.get_index(alpha_values, value_alpha, "left")
-        jj = self.get_index(alpha_values, value_alpha, "right")
-
-        if i == j and ii == jj:
-            value = as_lower[ii]
-            return value
-
-        if i == j and ii != jj:
-            lower = as_lower[ii]
-            upper = as_lower[jj]
-            value = (value_alpha - alpha_values[ii]) * (upper - lower) / (
-                alpha_values[jj] - alpha_values[ii]
-            ) + lower
-            return value
-
-        if i != j and ii == jj:
-            lower = as_lower[ii]
-            upper = as_upper[ii]
-            value = (value_a - a_values[i]) / (a_values[j] - a_values[i]) * (
-                upper - lower
-            ) + lower
-            return value
-
-        if i != j and ii != jj:
-            alphas_lower = (value_a - a_values[i]) * (as_upper[ii] - as_lower[ii]) / (
-                a_values[j] - a_values[i]
-            ) + as_lower[ii]
-            alphas_upper = (value_a - a_values[i]) * (as_upper[jj] - as_lower[jj]) / (
-                a_values[j] - a_values[i]
-            ) + as_lower[jj]
-            value = (value_alpha - alpha_values[ii]) * (alphas_upper - alphas_lower) / (
-                alpha_values[jj] - alpha_values[ii]
-            ) + alphas_lower
-            return value
 
     def make_factorisation(self, vertical_values, horizontal_values, wbfo, bs):
         verticals = vertical_values - (wbfo - bs)
@@ -738,28 +675,6 @@ class VHMEnvelope(Frame):
     def draw_graphs(self, event):
         self.clear_axes()
 
-        fv_qvts = np.array(
-            [
-                [0.354, 0.334, 0.308, 0.293, 0.276, 0.238, 0.200],
-                [0.387, 0.373, 0.354, 0.343, 0.331, 0.300, 0.265],
-                [0.418, 0.408, 0.396, 0.388, 0.379, 0.357, 0.329],
-                [0.447, 0.441, 0.433, 0.428, 0.423, 0.409, 0.390],
-                [0.474, 0.471, 0.468, 0.465, 0.463, 0.457, 0.448],
-                [0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500],
-            ]
-        )
-
-        m_alphas = np.array(
-            [
-                [1.172, 1.200, 1.239, 1.264, 1.295, 1.378, 1.500],
-                [0.902, 0.917, 0.937, 0.950, 0.965, 1.006, 1.067],
-                [0.653, 0.661, 0.670, 0.676, 0.683, 0.701, 0.729],
-                [0.422, 0.425, 0.429, 0.431, 0.434, 0.440, 0.450],
-                [0.205, 0.206, 0.207, 0.207, 0.208, 0.209, 0.211],
-                [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
-            ]
-        )
-
         granularity = 300
         qv = float(self.qv_value.GetValue())
         qh = float(self.qh_value.GetValue())
@@ -787,8 +702,11 @@ class VHMEnvelope(Frame):
 
         startv = 0.0
         starth = 0.0
-        fv_qvt = self.lookup_table(fv_qvts, a, alpha)
-        m_alpha = self.lookup_table(m_alphas, a, alpha)
+
+        fv_qvts = FvQvt()
+        m_alphas = MAlpha()
+        fv_qvt = fv_qvts.lookup(a, alpha)
+        m_alpha = m_alphas.lookup(a, alpha)
 
         if soil_flag == "Sand":
             self.fv_ax1 = np.linspace(startv, qv, granularity)
